@@ -1,0 +1,126 @@
+.ldap-container {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 8px 15px;
+    align-items: center;
+}
+
+.ldap-label {
+    justify-self: end;
+    color: var(--text-color-dim);
+    transition: color 0.2s;
+    cursor: default;
+}
+
+.ldap-label:hover {
+    color: var(--text-color-dim-hover);
+}
+
+.ldap-input-wrapper {
+    position: relative;
+    display: flex;
+    justify-self: stretch;
+}
+
+.ldap-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 12px;
+    border-radius: var(--border-radius-small);
+}
+
+.ldap-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.ldap-status-wrapper {
+    display: flex;
+    background: var(--ldap-status-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 0 12px;
+}
+
+.ldap-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.95em;
+    width: 100%;
+    text-align: center;
+}
+
+.ldap-btn-wrapper {
+    display: flex;
+}
+
+.ldap-btn-container {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 10px;
+}
+
+.ldap-btn-container .conf-btn {
+    width: 100%;
+    height: 100%;
+    margin-top: 0;
+}
+
+.ldap-status-icon {
+    font-size: 1.2em;
+}
+
+.ldap-status.ok .ldap-status-icon {
+    color: var(--status-ok-border);
+}
+
+.ldap-status.error .ldap-status-icon {
+    color: var(--status-error-border);
+}
+
+.ldap-status.checking .ldap-status-icon {
+    animation: spin 1s linear infinite;
+}
+
+.ldap-status.ok .ldap-status-text {
+    color: var(--text-color);
+}
+
+.ldap-status.error .ldap-status-text {
+    color: var(--error-text-color);
+    font-weight: 500;
+}
+
+.ldap-status.checking .ldap-status-text {
+    color: var(--text-color-medium);
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+    .ldap-actions {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ldap-status-wrapper {
+        height: 38px;
+    }
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}

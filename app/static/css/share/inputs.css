@@ -1,0 +1,69 @@
+input,
+textarea {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-family: monospace;
+    font-size: 15px;
+    height: var(--conf-row-height);
+    background: var(--input-bg);
+    color: var(--input-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s ease-in-out;
+}
+
+textarea {
+    height: auto; /* Позволяет textarea изменять размер */
+    padding-top: 6px; /* Небольшая коррекция для текста */
+    padding-bottom: 6px;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+input:-webkit-autofill:hover {
+    font-weight: bold;
+    -webkit-text-fill-color: var(--input-color);
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+.input-error {
+    background-color: var(--input-highlight-error-bg);
+}
+
+.input-highlight-success {
+    animation: success-glow 1.1s ease-out;
+}
+
+.input-highlight-generated {
+    animation: generated-glow 1.1s ease-out;
+}
+
+@keyframes success-glow {
+    from {
+        background-color: var(--input-highlight-success-bg);
+    }
+    to {
+        background-color: var(--input-bg);
+    }
+}
+
+@keyframes generated-glow-old {
+    from {
+        background-color: var(--input-highlight-generated-bg);
+    }
+    to {
+        background-color: var(--input-bg);
+    }
+}
+
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}

@@ -1,0 +1,285 @@
+/* Общий контейнер для SAML настроек */
+.saml-container {
+    padding-top: 5px;
+}
+
+/* Заголовок с переключателем */
+.saml-container .conf-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 0 5px;
+}
+
+.saml-container .conf-group-header h4 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-color-medium);
+}
+
+/* Стилизация главного переключателя "Включить SAML" */
+.saml-container .saml-enable-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.saml-container .saml-enable-label-text {
+    font-size: 0.95em;
+    color: var(--text-color-dim);
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Кнопка "Показать метаданные" */
+.btn-show-metadata {
+    background-color: #635100;
+    color: var(--text-color);
+    font-size: 0.9em;
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    display: none; /* Скрыта по умолчанию */
+}
+
+.btn-show-metadata:hover {
+    background-color: #836b00;
+    border-color: #555;
+}
+
+.saml-container.saml-enabled .btn-show-metadata {
+    display: flex; /* Показываем, если SAML включен */
+}
+
+/* Основной контейнер для всех опций */
+.saml-options-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 5px;
+}
+
+/* Строка с меткой и полем ввода (grid-разметка) */
+.saml-options-group .conf-row {
+    display: grid;
+    grid-template-columns: 114px 1fr;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Метка (label) */
+.saml-options-group .conf-row label {
+    text-align: right;
+    white-space: nowrap;
+    color: var(--text-color-dim);
+    user-select: none;
+    cursor: default;
+    padding-right: 5px;
+    font-size: 0.9em;
+}
+
+.saml-options-group .conf-row label:hover {
+    color: var(--text-color-dim-hover);
+}
+
+/* Поля ввода и textarea */
+.saml-options-group .conf-row input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 12px;
+}
+
+.saml-options-group .saml-textarea-wrapper textarea,
+.saml-options-group textarea {
+    min-height: 80px;
+    max-height: 200px;
+    resize: none;
+    font-family: monospace;
+    font-size: 0.9em;
+}
+
+/* Специальное правило для textarea, чтобы его label был вверху */
+.saml-options-group .conf-row--textarea {
+    align-items: start;
+}
+
+.saml-options-group .conf-row--textarea label {
+    padding-top: 6px;
+}
+
+/* Wrapper для textarea и кнопки */
+.saml-textarea-wrapper {
+    position: relative;
+    display: flex;
+    width: 100%;
+}
+
+.saml-textarea-wrapper textarea {
+    flex-grow: 1;
+}
+
+.saml-textarea-wrapper .btn-icon-inline {
+    position: absolute;
+    top: 12px;
+    right: 20px;
+    opacity: 0;
+    pointer-events: none;
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    font-size: 20px;
+    padding: 0;
+    border-radius: var(--border-radius-small);
+    background-color: var(--btn-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.saml-textarea-wrapper:hover .btn-icon-inline {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.saml-textarea-wrapper .btn-icon-inline:hover {
+    transform: scale(1.05);
+}
+
+.saml-textarea-wrapper .btn-icon-inline:active {
+    transform: scale(0.98);
+}
+
+/* Styles to make key generation buttons stand out */
+.saml-textarea-wrapper .btn-generate-key {
+    background-color: #4a411c;
+    color: #f0e68c;
+    border-color: #6e6029;
+}
+
+.saml-textarea-wrapper .btn-generate-key:hover {
+    background-color: #6f6128;
+    border-color: #958b50;
+    box-shadow: 0 1px 6px rgba(224, 213, 146, 0.4);
+}
+
+
+/* Заголовки секций (SP, IdP, Security) */
+.saml-options-group h5 {
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+/* Контейнер для чекбоксов безопасности (grid-разметка) */
+.saml-options-group .security-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.security-group {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+    padding: 10px;
+}
+
+.security-group h6 {
+    margin: 0 0 10px 0;
+    font-size: 0.9em;
+    color: var(--text-color-dim);
+    text-align: center;
+    font-weight: normal;
+}
+
+.security-group-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px;
+}
+
+.security-group.crypto-required {
+    background-color: var(--saml-group-crypto-bg);
+    border-left: 3px solid #ffa500;
+}
+
+.security-toggle {
+    display: inline-block;
+    cursor: pointer;
+    user-select: none;
+    padding: 6px 12px;
+    border-radius: var(--border-radius-small);
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+    border: 1px solid var(--border-color);
+    background-color: var(--input-bg);
+    font-size: 0.95em;
+    color: var(--text-color-dim);
+    text-align: center;
+}
+
+.security-toggle:hover {
+    background-color: var(--btn-hover-bg);
+    color: var(--text-color);
+}
+
+.security-toggle.active {
+    background-color: var(--perm-checkbox-checked-bg);
+    color: var(--text-color-light);
+    border-color: #1a81d3;
+    font-weight: 500;
+}
+
+.security-toggle input[type="checkbox"] {
+    display: none;
+}
+
+
+/* Скрываем опции, если SAML выключен */
+#samlOptionsContainer:not(.saml-enabled) .saml-options-group {
+    display: none;
+}
+
+/* Стили для модального окна метаданных */
+.metadata-modal .modal-content {
+    width: 90%;
+    max-width: 1200px;
+    height: 80vh;
+}
+
+.metadata-modal .modal-body {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.metadata-modal-display {
+    flex-grow: 1;
+    font-family: monospace;
+    font-size: 0.9em;
+    white-space: pre-wrap; /* Включаем перенос строк */
+    word-break: break-all; /* Разрываем длинные строки без пробелов */
+    overflow: auto;
+    background-color: var(--bg-log-color);
+    padding: 15px;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+    outline: none; /* Убираем стандартный контур при фокусе */
+}
+
+.metadata-modal-footer {
+    padding: 10px 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    background-color: var(--input-bg);
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+}

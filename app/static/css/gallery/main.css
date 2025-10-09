@@ -1,0 +1,14 @@
+@import '../share/variables.css';
+@import '../share/general.css';
+@import '../share/header.css';
+@import '../share/modal.css';
+@import '../share/controls.css';
+@import '../share/inputs.css';
+@import '../share/errors.css';
+@import '../share/nav-menu.css';
+@import '../share/logs-display.css';
+@import '../share/prompt-modal.css';
+@import '../share/buttons.css';
+@import 'gallery.css';
+@import 'list.css';
+@import 'pagination.css';

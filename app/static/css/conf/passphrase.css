@@ -1,0 +1,23 @@
+.passphrase-wrapper.conf-entry {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.passphrase-input {
+    flex-grow: 1;
+    box-sizing: border-box;
+    padding: 6px 12px;
+}
+
+.passphrase-wrapper .prompt-modal__eye-btn {
+    margin-left: 6px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    height: 26px;
+}

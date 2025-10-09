@@ -1,0 +1,19 @@
+services:
+  gravatar:
+    container_name: gravatar
+    restart: unless-stopped
+    build:
+      context: .
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION}
+    ports:
+      - "${NGINX_PORT}:${NGINX_PORT}"
+    volumes:
+      - "${DATA_PATH}:${INTERNAL_DATA_PATH:-/data}:rw"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+    env_file:
+      - .env

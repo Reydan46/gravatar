@@ -1,0 +1,106 @@
+.auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    margin: 0;
+    height: var(--app-viewport-height);
+}
+
+.login-form {
+    background-color: var(--container-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+    width: 100%;
+    max-width: var(--auth-form-max-width);
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-form form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.login-form h2 {
+    margin-bottom: 25px;
+    margin-top: 0;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: var(--border-radius-small);
+    background-color: var(--login-btn-bg);
+    color: var(--text-color-light);
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-login:hover {
+    background-color: var(--login-btn-hover-bg);
+}
+
+.saml-container {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #888;
+    margin-bottom: 15px;
+}
+
+.separator::before,
+.separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.separator:not(:empty)::before {
+    margin-right: .25em;
+}
+
+.separator:not(:empty)::after {
+    margin-left: .25em;
+}
+
+.btn-saml {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: var(--border-radius-small);
+    background-color: var(--login-sso-btn-bg);
+    color: var(--text-color-light);
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-saml:hover {
+    background-color: var(--login-sso-hover-btn-bg);
+}
+
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}

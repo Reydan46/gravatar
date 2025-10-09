@@ -1,0 +1,49 @@
+.nav-menu-container {
+    position: relative;
+    display: inline-block;
+}
+
+.nav-menu-list {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: var(--z-index-nav-menu);
+    background-color: var(--container-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+    box-shadow: var(--nav-menu-shadow);
+    list-style: none;
+    padding: var(--nav-menu-padding);
+    margin-top: var(--nav-menu-gap);
+    min-width: var(--nav-menu-min-width);
+}
+
+.nav-menu-list.show {
+    display: block;
+}
+
+.nav-menu-container .nav-menu-list li {
+    padding: var(--nav-menu-item-padding);
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+}
+
+.nav-menu-container .nav-menu-list li:hover {
+    background-color: var(--btn-hover-bg);
+}
+
+.nav-menu-icon {
+    margin-right: var(--nav-menu-icon-margin);
+    display: inline-block;
+    min-width: var(--nav-menu-icon-min-width);
+    text-align: center;
+}
+
+/* Для меню, выпадающего справа */
+.header-btn.right .nav-menu-list {
+    left: auto;
+    right: 0;
+}

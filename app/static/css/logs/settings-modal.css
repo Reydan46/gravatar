@@ -1,0 +1,339 @@
+.settings-form-group {
+    padding: 0 20px 15px;
+}
+
+.settings-label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-color-medium);
+    padding: 0 5px;
+    user-select: none;
+}
+
+/* -------- настройки input и textarea -------- */
+
+.settings-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+    background-color: var(--control-bg);
+    color: var(--input-color);
+    font-family: monospace;
+    resize: none;
+    overflow-y: auto;
+    line-height: 17px;
+    white-space: pre-wrap;
+    box-sizing: border-box;
+    min-height: 37px;
+    max-height: 200px;
+}
+
+.logFormat.settings-input {
+    height: 37px;
+    display: flex;
+    align-items: center;
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+
+.logFormat.settings-input::placeholder {
+    line-height: 37px;
+    vertical-align: middle;
+}
+
+.font-size-wrapper,
+.log-limit-wrapper {
+    position: relative;
+    display: flex;
+}
+
+.font-size-controls,
+.log-limit-controls {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    border-left: var(--input-border);
+}
+
+#fontSize,
+#logLimit {
+    width: 100%;
+    height: var(--input-height);
+    border: var(--input-border);
+    border-radius: var(--border-radius-small);
+    background: var(--input-bg);
+    color: var(--input-color);
+    text-align: center;
+    font-size: 14px;
+    font-family: monospace;
+    resize: none;
+    padding-left: 10px;
+    -moz-appearance: textfield;
+}
+
+#fontSize::-webkit-inner-spin-button,
+#fontSize::-webkit-outer-spin-button,
+#logLimit::-webkit-inner-spin-button,
+#logLimit::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#fontSize,
+#logLimit {
+    -moz-appearance: textfield;
+}
+
+/* -------- специальные селекты -------- */
+
+.log-level-wrapper {
+    position: relative;
+    display: flex;
+}
+
+.log-filter-select {
+    width: 80px;
+    height: 32px;
+    border: var(--input-border);
+    border-radius: var(--border-radius-small);
+    background: var(--input-bg);
+    color: var(--select-text-color);
+    text-align: center;
+    font-size: 14px;
+    font-family: monospace;
+    padding: 0 13px 0 0;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    min-height: 32px;
+}
+
+.log-filter-select::-moz-focus-inner {
+    border: 0;
+}
+
+.log-filter-select::-ms-expand {
+    display: none;
+}
+
+.log-level-wrapper::after {
+    content: "▼";
+    font-size: 0.7em;
+    color: var(--select-arrow-color);
+    position: absolute;
+    top: 8px;
+    right: 2px;
+    pointer-events: none;
+    padding: 3px;
+}
+
+.log-level-wrapper:hover::after {
+    color: var(--select-arrow-hover-color);
+}
+
+.log-filter-select option {
+    background-color: var(--input-bg);
+    color: var(--input-color);
+    padding: 8px;
+}
+
+.log-filter-select:hover {
+    background-color: var(--select-hover-bg);
+    border-color: var(--btn-hover-bg);
+}
+
+.log-filter-select:focus {
+    outline: none;
+    border-color: var(--input-focus-border-color);
+    box-shadow: var(--input-focus-box-shadow);
+}
+
+/* -------- цветовые настройки -------- */
+
+.color-settings-title {
+    margin-bottom: 10px;
+    color: var(--text-color-medium);
+    font-weight: bold;
+    user-select: none;
+}
+
+.color-setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.color-label {
+    width: 150px;
+    text-align: right;
+    padding-right: 15px;
+    color: var(--text-color-medium);
+    user-select: none;
+    min-width: 85px;
+}
+
+.color-picker {
+    width: 100%;
+    height: 30px;
+    border: none;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.color-code {
+    width: 80px;
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--text-color-dim);
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+    text-align: center;
+    padding: 4px;
+    margin-left: 10px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    height: auto;
+    min-width: 60px;
+}
+
+.color-code:focus {
+    outline: none;
+    border-color: var(--input-focus-border-color);
+    color: var(--text-color-light);
+}
+
+.color-code.invalid {
+    border-color: var(--input-invalid-border-color);
+}
+
+.color-reset-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.color-reset-btn {
+    width: 100%;
+    padding: 8px 20px;
+    background-color: var(--btn-hover-bg);
+    color: var(--text-color-light);
+    border: none;
+    border-radius: var(--border-radius-small);
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.color-reset-btn:hover {
+    background-color: var(--btn-reset-hover-bg);
+}
+
+/* -------- оформление формата и справки -------- */
+
+.format-reference {
+    padding: 10px 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.format-reference h4 {
+    margin-bottom: 5px;
+    color: var(--text-color-dim-hover);
+    margin-top: 10px;
+    user-select: none;
+}
+
+.format-reference ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 15px;
+}
+
+.format-reference li {
+    margin-bottom: 5px;
+}
+
+.format-reference code {
+    font-family: monospace;
+    background-color: var(--control-bg);
+    padding: 2px 5px;
+    border-radius: var(--border-radius-small);
+    color: var(--input-color);
+}
+
+.format-reference p {
+    margin-bottom: 10px;
+    color: var(--text-color-dim);
+    padding: 0 10px;
+    font-size: 0.9em;
+    font-style: italic;
+    user-select: none;
+}
+
+.default-format {
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-color);
+    position: relative;
+}
+
+.default-format pre {
+    background-color: var(--control-bg);
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+    color: var(--input-color);
+    font-family: monospace;
+    white-space: pre-wrap;
+    cursor: pointer;
+    user-select: none;
+}
+
+.default-format h4 {
+    margin-top: 5px;
+    margin-bottom: 8px;
+    user-select: none;
+}
+
+.copy-tooltip {
+    position: absolute;
+    left: 50%;
+    top: 8px;
+    transform: translateX(-50%);
+    color: var(--text-color-light);
+    background: var(--tooltip-bg);
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 1.05em;
+    z-index: 2;
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: var(--tooltip-shadow);
+    user-select: none;
+    animation: tooltip-fadein 0.12s;
+}
+
+@keyframes tooltip-fadein {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+    .logFormat {
+        min-height: 68px;
+    }
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}

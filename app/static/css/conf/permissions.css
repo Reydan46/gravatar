@@ -1,0 +1,75 @@
+.conf-entry .perm-checkbox-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 32px;
+    min-width: 32px;
+    height: var(--conf-row-height);
+    padding: 0 2px;
+}
+
+.conf-entry .perm-checkbox {
+    appearance: none;
+    width: var(--perm-checkbox-size);
+    height: var(--perm-checkbox-size);
+    border: var(--perm-checkbox-border-size) solid transparent;
+    border-radius: var(--perm-checkbox-radius);
+    background: var(--input-bg);
+    cursor: pointer;
+    position: relative;
+    transition: border 0.15s, background 0.12s, box-shadow 0.16s;
+    box-shadow: 0 0 0 0 transparent;
+    vertical-align: middle;
+    outline: none;
+    margin: 0 2px;
+    display: inline-block;
+}
+
+.conf-entry .perm-checkbox:hover {
+    background: var(--perm-checkbox-hover-bg);
+    box-shadow: var(--perm-checkbox-hover-shadow);
+}
+
+.conf-entry .perm-checkbox:checked {
+    background-color: var(--perm-checkbox-checked-bg);
+    box-shadow: var(--perm-checkbox-checked-shadow);
+}
+
+.conf-entry .perm-checkbox:focus-visible {
+    outline: 2px solid var(--perm-checkbox-focus-outline-color);
+}
+
+.conf-entry .perm-checkbox:after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 7px;
+    height: 12px;
+    border: solid var(--perm-checkbox-tick-color);
+    border-width: 0 2px 2px 0;
+    border-radius: 1px;
+    transform: scale(1) rotate(42deg);
+    opacity: 0;
+    transition: opacity 0.15s, border 0.13s;
+    pointer-events: none;
+}
+
+.conf-entry .perm-checkbox:checked:after {
+    opacity: 1;
+}
+
+.perm-header-icon {
+    font-size: 24px;
+    padding-left: 1px;
+    cursor: help;
+    user-select: none;
+}
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}

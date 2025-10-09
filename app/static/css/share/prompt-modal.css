@@ -1,0 +1,102 @@
+.prompt-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: var(--app-viewport-height, 100vh);
+    z-index: 10040;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.prompt-modal__backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: var(--app-viewport-height, 100vh);
+    background: rgba(0, 0, 0, 0.67);
+    z-index: 0;
+}
+
+.prompt-modal__box {
+    background: var(--container-bg);
+    border: 2px solid var(--border-color);
+    color: var(--text-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    min-width: 240px;
+    max-width: 80vw;
+    padding: 20px 18px 15px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    position: relative;
+    z-index: 1;
+    outline: none;
+}
+
+.prompt-modal__label {
+    margin-bottom: 10px;
+}
+
+.prompt-modal__label--with-help {
+    margin-bottom: 6px;
+}
+
+.prompt-modal__help {
+    font-size: 0.89em;
+    color: #b3b3b3;
+    margin-bottom: 10px;
+}
+
+.prompt-modal__input {
+    /*margin-bottom: 5px;*/
+    padding: 1px 10px;
+}
+
+.prompt-modal__input--password {
+    flex: 1;
+}
+
+.prompt-modal__input-wrapper {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.prompt-modal__eye-btn {
+    margin-left: 6px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    height: 26px;
+}
+
+.prompt-modal__btn-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 13px;
+}
+
+.prompt-modal__error {
+    color: #ff4b34;
+    margin-bottom: 5px;
+    font-size: 15px;
+    font-weight: 500;
+    white-space: pre-wrap;
+    max-width: 70vh;
+}
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}

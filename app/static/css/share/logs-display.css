@@ -1,0 +1,35 @@
+.log-entry {
+    font-size: var(--log-font-size);
+    font-family: var(--log-font-family), serif;
+    font-weight: var(--log-font-weight);
+    margin-bottom: 1px;
+    word-wrap: break-word;
+    word-break: break-all;
+    padding-bottom: 2px;
+    border-bottom: 1px dashed var(--log-entry-border-color);
+    white-space: pre-wrap;
+}
+
+.debug {
+    color: var(--debug-color);
+}
+
+.info {
+    color: var(--info-color);
+}
+
+.warning {
+    color: var(--warning-color);
+}
+
+.error {
+    color: var(--error-color);
+}
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}

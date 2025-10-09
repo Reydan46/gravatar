@@ -1,0 +1,52 @@
+.connection-status {
+    position: absolute;
+    /* top будет установлен через JS */
+    left: 0;
+    right: 0;
+    z-index: 10;
+    padding: 8px 15px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 0.95rem;
+    border-bottom: 1px solid transparent;
+    transition: background-color 0.3s ease, color 0.3s ease, opacity 0.4s ease;
+    box-sizing: border-box;
+    color: var(--text-color-light);
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    user-select: none;
+}
+
+.connection-status.hidden {
+    display: none;
+}
+
+/* Состояние: Подключение... */
+.connection-status.connecting {
+    background-color: #3e3c28cc;
+    border-bottom-color: #726c2b;
+}
+
+/* Состояние: Соединение установлено */
+.connection-status.connected {
+    background-color: #162817cc;
+    border-bottom-color: #11391a;
+    animation: fadeOut 0.5s ease-in-out forwards;
+    animation-delay: 2.5s;
+}
+
+/* Состояние: Соединение потеряно */
+.connection-status.disconnected {
+    background-color: #3b1e22cc;
+    border-bottom-color: #55182a;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+        pointer-events: none;
+    }
+}

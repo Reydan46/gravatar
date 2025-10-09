@@ -1,0 +1,67 @@
+# Основной пароль (passphrase) для доступа к защищенным API-методам.
+# Например, для запуска синхронизации аватаров.
+# Если оставить пустым, будет сгенерирован автоматически при первом запуске.
+passphrase: "your_secret_passphrase_here"
+
+# Список пользователей для доступа к web-интерфейсу.
+# Хеш первого пароля можно сгенерировать командой:
+# docker compose exec gravatar python -m utils.password_utils
+users:
+  - username: admin
+    password_hash: "$2b$12$EXAMPLEHASH.tC6a.Y/3S.EXAMPLEHASH..."
+    permissions:
+      - logs      # Доступ к странице /logs
+      - settings  # Доступ к странице /conf
+      - gallery   # Доступ к странице /gallery
+  - username: viewer
+    password_hash: "$2b$12$ANOTHERHASH.1A2b.C/3D.ANOTHERHASH..."
+    permissions:
+      - logs
+
+# Настройки подключения к Active Directory (LDAP) для синхронизации аватаров.
+# Эти поля можно заполнить через web-интерфейс на странице /conf.
+ldap_options:
+  LDAP_SERVER: "dc.example.com"
+  LDAP_USERNAME: "CN=ServiceUser,OU=Users,DC=example,DC=com"
+  LDAP_PASSWORD: "ServiceUserPassword"
+  LDAP_SEARCH_BASE: "OU=Users,DC=example,DC=com"
+
+# Настройки для Single Sign-On аутентификации через SAML 2.0.
+# Включают данные вашего Service Provider (SP, это приложение) и
+# Identity Provider (IdP, например, Keycloak, ADFS).
+# Эти настройки также можно редактировать в web-интерфейсе.
+saml_options:
+  enabled: false
+  debug: false
+  strict: true
+  sp:
+    entityId: "https://gravatar.example.com/saml/metadata"
+    assertionConsumerService:
+      url: "https://gravatar.example.com/saml/acs"
+      binding: "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+    singleLogoutService:
+      url: "https://gravatar.example.com/saml/sls"
+      binding: "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+    NameIDFormat: "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"
+    x509cert: ""
+    privateKey: ""
+  idp:
+    entityId: "https://idp.example.com/realms/master"
+    singleSignOnService:
+      url: "https://idp.example.com/realms/master/protocol/saml"
+      binding: "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+    singleLogoutService:
+      url: "https://idp.example.com/realms/master/protocol/saml"
+      binding: "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+    x509cert: "MIIC..."
+  security:
+    nameIdEncrypted: false
+    authnRequestsSigned: false
+    logoutRequestSigned: false
+    logoutResponseSigned: false
+    signMetadata: false
+    wantMessagesSigned: true
+    wantAssertionsSigned: true
+    wantAssertionsEncrypted: false
+    signatureAlgorithm: "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"
+    digestAlgorithm: "http://www.w3.org/2001/04/xmlenc#sha256"

@@ -1,0 +1,63 @@
+.font-size-wrapper,
+.log-limit-wrapper {
+    position: relative;
+    display: flex;
+}
+
+.font-size-controls,
+.log-limit-controls {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    border-left: var(--input-border);
+}
+
+.font-control,
+.log-limit-control {
+    height: 50%;
+    width: var(--control-width);
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: var(--control-bg);
+    color: var(--control-text);
+    font-size: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.font-control:hover,
+.log-limit-control:hover {
+    background: var(--control-hover-bg);
+    color: var(--control-hover-text);
+}
+
+.font-control:active,
+.log-limit-control:active {
+    background: var(--control-active-bg);
+}
+
+.font-control.up,
+.log-limit-control.up {
+    border-radius: 0 4px 0 0;
+}
+
+.font-control.down,
+.log-limit-control.down {
+    border-top: var(--input-border);
+    border-radius: 0 0 4px 0;
+}
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}

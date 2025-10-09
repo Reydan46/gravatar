@@ -1,0 +1,53 @@
+.conf-status {
+    display: flex;
+    justify-content: center;
+    min-height: 35px;
+    width: 100%;
+    letter-spacing: 0.015em;
+    transition: background 0.16s, color 0.25s;
+    line-height: 1.25;
+    padding: 7px 12px 5px 12px;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+}
+
+.conf-status .icon {
+    display: inline-flex;
+    align-items: baseline;
+    font-size: 1.1em;
+    margin-right: 4px;
+    margin-left: 1px;
+    vertical-align: baseline;
+    height: auto;
+}
+
+.conf-status.ok {
+    background: var(--status-ok-bg);
+    border-bottom: 2px solid var(--status-ok-border);
+}
+
+.conf-status.warn {
+    background: var(--status-warn-bg);
+    border-bottom: 2px solid var(--status-warn-border);
+}
+
+.conf-status.error {
+    background: var(--status-error-bg);
+    border-bottom: 2px solid var(--status-error-border);
+}
+
+.conf-status .err-text {
+    margin-left: 8px;
+    color: inherit;
+    font-weight: 500;
+    word-break: break-word;
+    white-space: pre-line;
+}
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}

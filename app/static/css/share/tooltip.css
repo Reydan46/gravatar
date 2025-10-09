@@ -1,0 +1,22 @@
+.tooltip {
+    position: fixed; /* Используем fixed для позиционирования относительно viewport */
+    display: none;
+    padding: 8px 12px;
+    background-color: var(--tooltip-bg);
+    color: var(--tooltip-text);
+    border-radius: var(--border-radius-small);
+    font-size: 0.9rem;
+    z-index: var(--z-index-nav-menu); /* Убедимся, что тултип поверх других элементов */
+    pointer-events: none; /* Тултип не должен мешать взаимодействию с элементами под ним */
+    white-space: pre-wrap; /* Позволяет переносить текст внутри тултипа */
+    max-width: 400px; /* Ограничиваем максимальную ширину */
+    box-shadow: var(--tooltip-shadow);
+    border: 1px solid var(--tooltip-border);
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+}
+
+.tooltip.show {
+    display: block;
+    opacity: 1;
+}

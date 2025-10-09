@@ -1,0 +1,80 @@
+.filter-help-body {
+    padding: 5px 25px 20px 25px;
+    line-height: 1.6;
+}
+
+.filter-help-body h3 {
+    color: var(--text-color-dim-hover);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.filter-help-body p {
+    color: var(--text-color-medium);
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.filter-help-body .example-block {
+    margin-bottom: 25px;
+}
+
+.filter-help-body .example-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-help-body .example-label {
+    color: #cd997a;
+    margin: 0;
+    font-style: italic;
+    font-size: 0.95em;
+    flex-shrink: 0; /* Запрещаем метке сжиматься */
+}
+
+.filter-help-body .example-line > code {
+    flex-grow: 1; /* Разрешаем блоку с кодом занимать все оставшееся место */
+    box-sizing: border-box;
+
+    /* Стили, идентичные .filter-input */
+    height: 30px;
+    background: var(--input-bg);
+    color: var(--input-color);
+    border: var(--input-border);
+    border-radius: var(--border-radius-small);
+    padding: 0 10px;
+    font-size: 14px;
+    font-family: monospace;
+
+    /* Вертикальное центрирование текста внутри */
+    display: flex;
+    align-items: center;
+}
+
+.filter-help-body .example-explanation {
+    color: var(--text-color-medium);
+    margin-top: 6px;
+    margin-bottom: 0;
+    padding-left: 5px;
+    font-style: italic;
+    font-size: 0.95em;
+    line-height: 1.4;
+}
+
+/* Стили для inline-элементов code в обычном тексте */
+.filter-help-body p > code,
+.filter-help-body .example-explanation > code {
+    height: auto;
+    display: inline;
+    padding: 2px 6px;
+    font-size: 0.9em;
+    vertical-align: baseline;
+    background-color: var(--input-bg);
+    border-radius: var(--border-radius-small);
+    font-family: monospace;
+    color: var(--input-color);
+    border: 1px solid var(--border-color);
+}

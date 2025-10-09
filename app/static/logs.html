@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravatar - Просмотр логов</title>
+    <link rel="stylesheet" href="/static/css/logs/main.css">
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+</head>
+<body data-page="logs">
+<div class="container">
+    <div id="logsContainer" class="container-wrapper logs-container-wrapper">
+        <div class="header">
+            <div class="header-btn left">
+                <button id="logoBtn" class="btn icon-btn logo-btn" title="Главная"><span class="logo-img"></span>
+                </button>
+                <div id="logsMenuContainer" class="nav-menu-container hidden">
+                    <button id="logsMenuBtn" class="btn icon-btn" data-icon="⚡️" title="Действия"><span
+                            class="btn-label">Действия</span></button>
+                    <div id="logsMenuList" class="nav-menu-list"></div>
+                </div>
+            </div>
+            <div id="logTitle" class="header-title">Логи системы</div>
+            <div class="header-btn right">
+                <div id="navMenuContainer" class="nav-menu-container">
+                    <button id="navMenuBtn" class="btn icon-btn" data-icon="☰" title="Навигация"><span
+                            class="btn-label">Навигация</span></button>
+                    <div id="navMenuList" class="nav-menu-list"></div>
+                </div>
+                <button id="logoutBtn" class="btn icon-btn" data-icon="🚪" title="Выйти"><span
+                        class="btn-label">Выйти</span></button>
+            </div>
+        </div>
+        <div id="connectionStatus" class="connection-status hidden">
+            <span id="connectionStatusText"></span>
+        </div>
+        <div class="logs-container">
+            <div id="logDisplay"></div>
+        </div>
+        <div class="filter-container hidden">
+            <div class="log-level-wrapper">
+                <select id="logLevelSelect" class="settings-input log-filter-select">
+                    <option value="DEBUG">DEBUG</option>
+                    <option value="INFO">INFO</option>
+                    <option value="WARNING">WARNING</option>
+                    <option value="ERROR">ERROR</option>
+                </select>
+            </div>
+            <input type="text" id="filterInput" class="filter-input"
+                   placeholder='Текст, "фраза", /regex/, -"исключить", | для ИЛИ'>
+            <button id="filterClear" class="filter-clear" title="Очистить фильтр">✕</button>
+        </div>
+    </div>
+</div>
+
+<div id="settingsModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-title">Настройки просмотра логов
+            <button id="closeSettingsModalBtn" class="close-btn">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="settings-form-group">
+                <label class="settings-label" for="logLimit">
+                    Количество загружаемых логов <span id="logLimitRange"></span>:
+                </label>
+                <div class="log-limit-wrapper">
+                    <input type="number" id="logLimit" step="1">
+                    <div class="log-limit-controls">
+                        <button type="button" class="log-limit-control up">▲</button>
+                        <button type="button" class="log-limit-control down">▼</button>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-form-group">
+                <label class="settings-label" for="fontSize">
+                    Размер шрифта <span id="fontSizeRange"></span>:
+                </label>
+                <div class="font-size-wrapper">
+                    <input type="number" id="fontSize" step="1">
+                    <div class="font-size-controls">
+                        <button type="button" class="font-control up">▲</button>
+                        <button type="button" class="font-control down">▼</button>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-form-group">
+                <label class="settings-label" for="logFormat">Формат логов:</label>
+                <textarea
+                        id="logFormat"
+                        class="settings-input logFormat"
+                        placeholder=""
+                ></textarea>
+            </div>
+
+            <div class="settings-form-group">
+                <div class="color-settings-title">Настройка цветов для уровней логирования:</div>
+
+                <div class="color-setting-row">
+                    <label class="color-label" for="debugColor">DBG:</label>
+                    <input type="color" id="debugColor" class="color-picker" data-level="debug">
+                    <input type="text" id="debugColorCode" class="color-code" maxlength="7" spellcheck="false">
+                </div>
+
+                <div class="color-setting-row">
+                    <label class="color-label" for="infoColor">INF:</label>
+                    <input type="color" id="infoColor" class="color-picker" data-level="info">
+                    <input type="text" id="infoColorCode" class="color-code" maxlength="7" spellcheck="false">
+                </div>
+
+                <div class="color-setting-row">
+                    <label class="color-label" for="warningColor">WRN:</label>
+                    <input type="color" id="warningColor" class="color-picker" data-level="warning">
+                    <input type="text" id="warningColorCode" class="color-code" maxlength="7" spellcheck="false">
+                </div>
+
+                <div class="color-setting-row">
+                    <label class="color-label" for="errorColor">ERR:</label>
+                    <input type="color" id="errorColor" class="color-picker" data-level="error">
+                    <input type="text" id="errorColorCode" class="color-code" maxlength="7" spellcheck="false">
+                </div>
+
+                <div class="color-reset-container">
+                    <button id="resetColorsBtn" class="btn color-reset-btn">Сбросить цвета</button>
+                </div>
+            </div>
+
+            <div class="format-reference">
+                <h4>Доступные переменные формата:</h4>
+                <ul>
+                    <li><code>%(asctime)s</code> - дата и время (пример: 22.03.2025 23:48:35)</li>
+                    <li><code>%(msecs)s</code> - миллисекунды</li>
+                    <li><code>%(module)s</code> - название модуля</li>
+                    <li><code>%(funcName)s</code> - название функции</li>
+                    <li><code>%(process)s</code> - ID процесса</li>
+                    <li><code>%(session_id)s</code> - ID сессии запроса</li>
+                    <li><code>%(levelname)s</code> - уровень логирования (INF, ERR, WRN и т.д.)</li>
+                    <li><code>%(message)s</code> - текст сообщения</li>
+                </ul>
+                <h4>Поддерживается форматирование ширины:</h4>
+                <ul>
+                    <li><code>%(module)-20s</code> - выравнивание по левому краю</li>
+                    <li><code>%(funcName)25s</code> - выравнивание по правому краю</li>
+                </ul>
+                <div class="default-format">
+                    <h4>Стандартный формат:</h4>
+                    <pre id="defaultFormat"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="filterHelpModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-title">Справка по фильтрации
+            <button id="closeFilterHelpModalBtn" class="close-btn">✕</button>
+        </div>
+        <div class="modal-body filter-help-body">
+            <h3>Простой поиск (И)</h3>
+            <p>Введите слова или фразы в кавычках через пробел. Лог будет показан, если он содержит <strong>все</strong>
+                указанные элементы.</p>
+            <div class="example-block">
+                <div class="example-line">
+                    <p class="example-label">Пример:</p>
+                    <code>ошибка "пользователь не найден"</code>
+                </div>
+                <p class="example-explanation">Найдутся логи, содержащие и слово «ошибка», и фразу «пользователь не
+                    найден».</p>
+            </div>
+
+            <h3>Группы «ИЛИ»</h3>
+            <p>Оператор <code>|</code> (вертикальная черта) объединяет несколько условий в группу, для срабатывания
+                которой достаточно совпадения хотя бы одного из них.</p>
+            <div class="example-block">
+                <div class="example-line">
+                    <p class="example-label">Пример:</p>
+                    <code>ошибка|сбой</code>
+                </div>
+                <p class="example-explanation">Эта группа найдет логи, в которых есть слово «ошибка»
+                    <strong>или</strong> слово «сбой».</p>
+            </div>
+
+            <h3>Исключение (НЕ)</h3>
+            <p>Добавьте <code>-</code> перед условием (словом, фразой или группой «ИЛИ»), чтобы исключить логи, которые
+                ему
+                соответствуют.</p>
+            <div class="example-block">
+                <div class="example-line">
+                    <p class="example-label">Пример (простое исключение):</p>
+                    <code>ошибка -транзакция</code>
+                </div>
+                <p class="example-explanation">Найдутся логи со словом «ошибка», но без слова «транзакция».</p>
+            </div>
+            <div class="example-block">
+                <div class="example-line">
+                    <p class="example-label">Пример (исключение группы):</p>
+                    <code>-ошибка|сбой</code>
+                </div>
+                <p class="example-explanation">Исключатся логи, содержащие <strong>или</strong> «ошибка»,
+                    <strong>или</strong> «сбой».</p>
+            </div>
+
+            <h3>Регулярные выражения</h3>
+            <p>Для сложного поиска используйте выражения в слешах <code>/.../</code>. Можно использовать флаги
+                (<code>i</code>, <code>g</code>).</p>
+            <div class="example-block">
+                <div class="example-line">
+                    <p class="example-label">Пример:</p>
+                    <code>/user_id:\s*\d+/</code>
+                </div>
+                <p class="example-explanation">Найдутся логи, где есть "user_id:" и следующие за ним цифры.</p>
+            </div>
+
+            <h3>Экранирование символов</h3>
+            <p>Для поиска специальных символов (<code>"</code>, <code>|</code>, <code>/</code>, <code>-</code> в начале
+                слова), используйте обратный слеш <code>\</code>.</p>
+            <div class="example-block">
+                <div class="example-line">
+                    <p class="example-label">Пример:</p>
+                    <code>"сообщение: \"OK\""</code>
+                </div>
+                <p class="example-explanation">Найдутся логи с фразой <code>сообщение: "OK"</code>, включая кавычки.
+                </p>
+            </div>
+
+            <h3>Комбинирование условий</h3>
+            <p>Пробел разделяет условия "И". Группа «ИЛИ» рассматривается как единое условие в цепочке "И".</p>
+            <div class="example-block">
+                <div class="example-line">
+                    <p class="example-label">Пример:</p>
+                    <code>задача "завершена" ошибка|сбой -проверка</code>
+                </div>
+                <p class="example-explanation">Будут найдены логи, которые содержат слово <code>задача</code>
+                    <strong>и</strong>
+                    фразу <code>"завершена"</code> <strong>и</strong> (группу <code>ошибка</code> <strong>или</strong>
+                    <code>сбой</code>), но при этом <strong>не</strong> содержат слово <code>проверка</code>.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="/static/js/logs/main.js"></script>
+</body>
+</html>

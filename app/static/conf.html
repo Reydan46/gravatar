@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravatar - Настройки</title>
+    <link rel="stylesheet" href="/static/css/conf/main.css">
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+</head>
+<body data-page="conf">
+<div class="container">
+    <div class="container-wrapper conf-container-wrapper">
+        <div class="header">
+            <div class="header-btn left">
+                <button id="logoBtn" class="btn icon-btn logo-btn" title="Главная">
+                    <span class="logo-img"></span>
+                </button>
+                <div id="confMenuContainer" class="nav-menu-container hidden">
+                    <button id="confMenuBtn" class="btn icon-btn" data-icon="⚡️" title="Действия"><span
+                            class="btn-label">Действия</span></button>
+                    <div id="confMenuList" class="nav-menu-list"></div>
+                </div>
+            </div>
+            <div id="logTitle" class="header-title">Настройки</div>
+            <div class="header-btn right">
+                <div id="navMenuContainer" class="nav-menu-container">
+                    <button id="navMenuBtn" class="btn icon-btn" data-icon="☰" title="Навигация"><span
+                            class="btn-label">Навигация</span></button>
+                    <div id="navMenuList" class="nav-menu-list"></div>
+                </div>
+                <button id="logoutBtn" class="btn icon-btn" data-icon="🚪" title="Выйти"><span
+                        class="btn-label">Выйти</span></button>
+            </div>
+        </div>
+        <div class="conf-status" id="confStatus"></div>
+        <div class="conf-container">
+            <div class="conf-group hidden" id="passphraseGroup">
+                <h3>Основной пароль (Passphrase)</h3>
+                <div class="entries-container">
+                    <div id="passphraseContainer" class="scrollable-list passphrase"></div>
+                </div>
+            </div>
+            <div class="conf-group hidden" id="usersGroup">
+                <h3>Пользователи</h3>
+                <div class="entries-container">
+                    <div class="conf-list-header users">
+                        <div class="user-header">Имя</div>
+                        <div class="pass-header">Пароль (hash)</div>
+                        <div class="hash-header"></div>
+                        <div class="perm-header" title="Доступ к странице с логами">
+                            <span class="perm-header-icon" style="display: none">📝</span></div>
+                        <div class="perm-header" title="Доступ к странице с галереей">
+                            <span class="perm-header-icon" style="display: none">🖼️</span></div>
+                        <div class="perm-header" title="Доступ к странице с настройками">
+                            <span class="perm-header-icon" style="display: none">🛠️️</span></div>
+                        <div class="del-header"></div>
+                        <div class="scrollbar-compensator"></div>
+                    </div>
+                    <div id="usersList" class="scrollable-list users-list"></div>
+                </div>
+                <button class="conf-btn" id="addUserBtn">Добавить пользователя</button>
+            </div>
+            <div class="conf-group hidden" id="ldapOptionsGroup">
+                <h3>Подключение к Active Directory</h3>
+                <div class="ldap-container" id="ldapOptionsContainer">
+                </div>
+                <div class="ldap-actions">
+                    <div class="ldap-status-wrapper">
+                        <div class="ldap-status" id="ldapStatus"></div>
+                    </div>
+                    <div class="ldap-btn-container">
+                        <button class="conf-btn" id="syncAvatarsBtn" disabled>Синхронизировать</button>
+                        <button class="conf-btn" id="checkLdapBtn">Проверить</button>
+                    </div>
+                </div>
+            </div>
+            <div class="conf-group hidden" id="samlOptionsGroup">
+                <h3>Настройки SAML</h3>
+                <div class="entries-container">
+                    <div id="samlOptionsContainer" class="scrollable-list saml-container">
+                        <!-- Содержимое будет сгенерировано JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="file" id="restoreFileInput" class="hidden" accept=".yml,.yaml">
+<script type="module" src="/static/js/conf/main.js"></script>
+</body>
+</html>

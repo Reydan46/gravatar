@@ -1,0 +1,28 @@
+.logs-container-wrapper {
+    position: relative;
+}
+
+.logs-container {
+    overflow-y: auto;
+    padding: 15px;
+    background-color: var(--bg-log-color);
+    flex-grow: 1;
+    overscroll-behavior: contain;
+}
+
+.openSettingsBtn {
+    padding: 0;
+}
+
+.openSettingsBtn .btn-label {
+    font-size: 23px;
+    display: inline-block;
+}
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}

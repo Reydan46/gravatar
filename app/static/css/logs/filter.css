@@ -1,0 +1,53 @@
+.filter-container {
+    padding: 8px 5px 5px 5px;
+    display: flex;
+    align-items: center;
+}
+
+.filter-input {
+    flex-grow: 1;
+    height: 30px;
+    border: var(--input-border);
+    border-radius: var(--border-radius-small);
+    background: var(--input-bg);
+    color: var(--input-color);
+    padding: 0 10px;
+    font-size: 14px;
+    font-family: monospace;
+    margin-left: 5px;
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: var(--input-focus-border-color);
+    box-shadow: var(--input-focus-box-shadow);
+}
+
+.filter-clear {
+    background: transparent;
+    border: none;
+    color: var(--text-color-dim);
+    cursor: pointer;
+    margin-left: 5px;
+    font-size: 18px;
+    padding: 0 5px;
+}
+
+.filter-clear:hover {
+    color: var(--text-color-dim-hover);
+}
+
+.highlight {
+    background-color: var(--highlight-bg);
+    color: var(--highlight-color);
+    border-radius: 2px;
+    padding: 0 2px;
+}
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}

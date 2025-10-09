@@ -1,0 +1,151 @@
+:root {
+    --app-viewport-height: 100vh;
+
+    /* Цвета */
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --container-bg: #1e1e1e;
+    --border-color: #333;
+    --input-bg: #2a2a2a;
+    --ldap-status-bg: #1a1a1a;
+    --input-color: #eee;
+    --text-color-light: #fff;
+    --text-color-medium: #ccc;
+    --text-color-dim: #aaa;
+    --text-color-dim-hover: #ddd;
+    --text-color-help: #b3b3b3;
+
+    /* Аватары */
+    --avatar-hover-scale: 1.25;
+
+    /* Кнопки и иконки */
+    --btn-bg: #444;
+    --btn-hover-bg: #555;
+    --btn-icon-size: 24px;
+    --login-btn-bg: #206d23;
+    --login-btn-hover-bg: #124714;
+    --login-sso-btn-bg: #255a7e;
+    --login-sso-hover-btn-bg: #17384f;
+    --btn-del-color: #b92020;
+    --btn-del-hover-color: #ed0f0f;
+    --btn-del-hover-bg: #ee666633;
+    --btn-del-focus-outline-color: #e66d7d;
+    --btn-del-active-bg: #a020301f;
+    --btn-del-active-shadow: 0 1px 7px #ffa2a299;
+    --btn-del-hover-shadow: 0 1px 6px #a9262635;
+    --btn-hash-color: #87CEEB;
+    --btn-hash-hover-bg: #f9d10033;
+    --btn-hash-hover-shadow: 0 1px 6px #927c0c50;
+    --btn-hash-focus-outline-color: #cab143;
+    --btn-reset-hover-bg: #777;
+    --btn-eye-hover-bg: #ffffff30;
+    --btn-eye-hover-shadow: 0 1px 6px #78745e50;
+    --close-btn-hover-color: #858585;
+    --eye-icon-color: #898989;
+
+    /* Для логов */
+    --bg-log-color: #121212;
+    --log-font-family: monospace;
+    --log-font-weight: normal;
+    --log-font-size: 12px;
+    --debug-color: #b0bec5;
+    --info-color: #1e90ff;
+    --warning-color: #ffcc00;
+    --error-color: #ff6b6b;
+    --highlight-bg: rgb(0 223 255 / 30%);
+    --highlight-color: #ffff;
+    --log-entry-border-color: #303030;
+
+    /* Шрифты и оформление */
+    --border-radius: 8px;
+    --border-radius-small: 4px;
+    --border-radius-medium: 7px;
+    --padding-std: 10px;
+    --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    --modal-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    --error-text-color: #ff6666;
+    --krot-active-color: #4CAF50;
+    --krot-radio-border: #ccc;
+    --krot-radio-hover-border: #fff;
+    --krot-radio-hover-bg: #555;
+
+    /* Inputs, controls */
+    --input-height: 33px;
+    --input-border: 1px solid #444;
+    --input-focus-shadow: inset 0 0 4px 1px #ffffff7a;
+    --input-focus-border-color: #666;
+    --input-focus-box-shadow: 0 0 3px rgba(100, 100, 100, 0.5);
+    --input-highlight-error-bg: #ff000014;
+    --input-highlight-success-bg: #00ff0014;
+    --input-highlight-generated-bg: #fff9001f;
+    --input-invalid-border-color: #c66;
+    --control-bg: #333;
+    --control-hover-bg: #444;
+    --control-active-bg: #555;
+    --control-text: #888;
+    --control-hover-text: #fff;
+    --control-width: 20px;
+    --select-text-color: var(--input-color);
+    --select-arrow-color: #888;
+    --select-arrow-hover-color: #aaa;
+    --select-hover-bg: #3a3a3a;
+
+    /* Scrollbar */
+    --scrollbar-width: 12px;
+    --scrollbar-thumb-radius: 6px;
+
+    /* Анимации */
+    --animation-add-glow-start-shadow: 0 0 5px 2px #49ff0047;
+    --animation-add-glow-start-bg: #144f0033;
+    --animation-add-glow-mid-shadow: 0 0 3px 1px #5fff0030;
+    --animation-add-glow-mid-bg: #144f0022;
+    --animation-remove-glow-start-shadow: 0 0 7px 2px #ff464670;
+    --animation-remove-glow-start-bg: #4f1c1c75;
+    --animation-remove-glow-mid-shadow: 0 0 3px 1px #ff464650;
+    --animation-remove-glow-mid-bg: #4f1c1c45;
+
+    /* Разметка */
+    --conf-row-height: 32px;
+    --conf-group-min-width: 500px;
+    --conf-group-max-width: 650px;
+    --conf-group-max-height: 45vh;
+    --auth-form-max-width: 300px;
+    --perm-checkbox-size: 30px;
+    --perm-checkbox-border-size: 5px;
+    --perm-checkbox-radius: 7px;
+    --perm-checkbox-hover-bg: #0a66bf52;
+    --perm-checkbox-hover-shadow: 0 0 5px #377de454;
+    --perm-checkbox-checked-bg: #1a7ddf;
+    --perm-checkbox-checked-shadow: 0 2px 7px #1473cf85;
+    --perm-checkbox-focus-outline-color: #44c4f7;
+    --perm-checkbox-tick-color: #fff;
+    --status-ok-bg: #162817;
+    --status-ok-border: #11391a;
+    --status-warn-bg: #28270c;
+    --status-warn-border: #584e11;
+    --status-error-bg: #2a1016;
+    --status-error-border: #55182a;
+    --modal-backdrop-bg: rgba(0, 0, 0, 0.7);
+    --prompt-backdrop-bg: rgba(0, 0, 0, 0.67);
+    --prompt-error-color: #ff4b34;
+    --modal-bg: #222;
+    --tooltip-bg: #2d2d30;
+    --tooltip-text: #f0f0f0;
+    --tooltip-border: #4a4a4f;
+    --tooltip-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --saml-group-crypto-bg: rgba(255, 165, 0, 0.07);
+
+    /* Nav Menu */
+    --nav-menu-gap: 5px;
+    --nav-menu-padding: 5px 0;
+    --nav-menu-item-padding: 10px 15px;
+    --nav-menu-min-width: 180px;
+    --nav-menu-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --nav-menu-icon-margin: 10px;
+    --nav-menu-icon-min-width: 20px;
+
+    /* Z-индексы */
+    --z-index-modal: 1000;
+    --z-index-nav-menu: 1100;
+    --z-index-prompt-modal: 10040;
+}

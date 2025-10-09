@@ -1,0 +1,11 @@
+/venv/
+/.idea/
+/Gravatar.iml
+/data/*
+.env
+/ssl/
+/docker-compose.override.yml
+/docker-compose.prod.yml
+/.reygpt-mask.yml
+/.env.local
+/requirements-dev.txt

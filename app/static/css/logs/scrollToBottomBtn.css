@@ -1,0 +1,48 @@
+:root {
+    --scroll-btn-size: 50px;
+    --scroll-btn-right: 60px;
+    --scroll-btn-bottom: 15%;
+}
+
+.scroll-to-bottom-btn {
+    position: fixed;
+    right: var(--scroll-btn-right);
+    bottom: var(--scroll-btn-bottom);
+    z-index: 200;
+    background: none;
+    border: none;
+    outline: none;
+    border-radius: 50%;
+    box-shadow: 0 2px 15px 0 rgba(10, 22, 54, 0.10);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(.48, 1.6, .42, .92);
+    cursor: pointer;
+    padding: 0;
+    width: var(--scroll-btn-size);
+    height: var(--scroll-btn-size);
+    user-select: none;
+    touch-action: manipulation;
+    will-change: opacity;
+}
+
+.scroll-to-bottom-btn svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    opacity: 0.8;
+}
+
+.scroll-to-bottom-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.3s cubic-bezier(.22, 1, .36, 1);
+}
+
+@media (max-width: 600px) {
+    :root {
+        --scroll-btn-size: 50px;
+        --scroll-btn-right: 40px;
+        --scroll-btn-bottom: 12%;
+    }
+}

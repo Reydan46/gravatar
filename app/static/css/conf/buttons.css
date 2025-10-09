@@ -1,0 +1,137 @@
+.conf-btn {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 5px;
+    background: var(--btn-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    padding: 9px 0;
+    cursor: pointer;
+    transition: background 0.16s;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    user-select: none;
+}
+
+.conf-btn:disabled {
+    cursor: default;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.conf-btn:hover {
+    background: var(--btn-hover-bg);
+}
+
+.conf-entry .btn-del.small {
+    background: none;
+    border: none;
+    color: var(--btn-del-color);
+    font-size: 20px;
+    font-weight: bold;
+    padding: 0 0 4px 0;
+    height: 30px;
+    width: 30px;
+    min-width: 28px;
+    margin: 0 2px;
+    border-radius: var(--border-radius-medium);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.18s, background 0.15s, box-shadow 0.18s, transform 0.14s;
+    box-shadow: none;
+    outline: none;
+}
+
+.conf-entry .btn-del.small:focus-visible {
+    outline: 2px solid var(--btn-del-focus-outline-color);
+}
+
+.conf-entry .btn-del.small:hover {
+    color: var(--btn-del-hover-color);
+    background: var(--btn-del-hover-bg);
+    box-shadow: var(--btn-del-hover-shadow);
+}
+
+.conf-entry .btn-del.small:active {
+    color: var(--text-color-light);
+    background: var(--btn-del-active-bg);
+    box-shadow: var(--btn-del-active-shadow);
+    transform: scale(0.99);
+}
+
+.conf-entry .btn-hash.small {
+    background: none;
+    border: none;
+    color: var(--btn-hash-color);
+    font-size: 19px;
+    padding: 0;
+    height: 30px;
+    width: 30px;
+    min-width: 28px;
+    margin: 0 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-medium);
+    cursor: pointer;
+    transition: color 0.20s, background 0.13s, box-shadow 0.16s, transform 0.11s;
+    box-shadow: none;
+    outline: none;
+}
+
+.conf-entry .btn-hash.small:focus-visible {
+    outline: 2px solid var(--btn-hash-focus-outline-color);
+}
+
+.conf-entry .btn-hash.small:hover {
+    color: var(--text-color-light);
+    background: var(--btn-hash-hover-bg);
+    box-shadow: var(--btn-hash-hover-shadow);
+}
+
+
+.btn-eye.small {
+    background: none;
+    border: none;
+    color: var(--eye-icon-color);
+    padding: 0;
+    height: 30px;
+    width: 30px;
+    min-width: 28px;
+    margin: 0 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-medium);
+    cursor: pointer;
+    transition: color 0.20s, background 0.13s, box-shadow 0.16s, transform 0.11s;
+    box-shadow: none;
+    outline: none;
+}
+
+.btn-eye.small:hover {
+    background: var(--btn-eye-hover-bg);
+    box-shadow: var(--btn-eye-hover-shadow);
+}
+
+.btn-eye.small svg path,
+.btn-eye.small svg circle {
+    transition: stroke 0.2s;
+}
+
+.btn-eye.small:hover svg path,
+.btn-eye.small:hover svg circle {
+    stroke: var(--text-color-light);
+}
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}

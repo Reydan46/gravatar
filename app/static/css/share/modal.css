@@ -1,0 +1,74 @@
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--app-viewport-height);
+    background-color: var(--modal-backdrop-bg);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: var(--modal-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    margin: auto;
+    box-shadow: var(--modal-shadow);
+    width: 95%;
+    max-width: 940px;
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(var(--app-viewport-height) - 20px);
+    box-sizing: border-box;
+}
+
+.modal-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 15px 0;
+    background-color: var(--border-color);
+    color: var(--text-color-light);
+    border-bottom: 1px solid var(--border-color);
+    user-select: none;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-color-medium);
+    font-size: 23px;
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.close-btn:hover {
+    color: var(--close-btn-hover-color);
+}
+
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding-top: 15px;
+    overscroll-behavior: contain;
+}
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}

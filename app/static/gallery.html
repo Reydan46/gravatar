@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravatar - Галерея</title>
+    <link rel="stylesheet" href="/static/css/gallery/main.css">
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+</head>
+<body data-page="gallery">
+<div class="container">
+    <div class="container-wrapper">
+        <div class="header">
+            <div class="header-btn left">
+                <button id="logoBtn" class="btn icon-btn logo-btn" title="Главная"><span class="logo-img"></span>
+                </button>
+                <div id="galleryMenuContainer" class="nav-menu-container">
+                    <button id="galleryMenuBtn" class="btn icon-btn" data-icon="⚡️" title="Действия"><span
+                            class="btn-label">Действия</span></button>
+                    <div id="galleryMenuList" class="nav-menu-list"></div>
+                </div>
+            </div>
+            <div id="galleryTitle" class="header-title">Галерея аватаров</div>
+            <div class="header-btn right">
+                <div id="navMenuContainer" class="nav-menu-container">
+                    <button id="navMenuBtn" class="btn icon-btn" data-icon="☰" title="Навигация"><span
+                            class="btn-label">Навигация</span></button>
+                    <div id="navMenuList" class="nav-menu-list"></div>
+                </div>
+                <button id="logoutBtn" class="btn icon-btn" data-icon="🚪" title="Выйти"><span
+                        class="btn-label">Выйти</span></button>
+            </div>
+        </div>
+        <div class="gallery-content-wrapper hidden">
+            <div class="gallery-list-container">
+                <div class="gallery-header">
+                    <div class="gallery-cell header-photo">Фото</div>
+                    <div class="gallery-cell sortable" data-sort="email">Email</div>
+                    <div class="gallery-cell sortable" data-sort="height">Размер (ШxВ)</div>
+                    <div class="gallery-cell sortable" data-sort="file_size">Размер (ФС)</div>
+                    <div class="gallery-cell sortable" data-sort="md5">MD5</div>
+                    <div class="gallery-cell sortable" data-sort="sha256">SHA256</div>
+                </div>
+                <div class="gallery-filters">
+                    <div class="gallery-cell filter-photo"></div>
+                    <div class="gallery-cell filter-email">
+                        <div class="filter-input-wrapper">
+                            <input type="text" data-filter="email" placeholder="Фильтр...">
+                            <button class="clear-filter-btn hidden" title="Очистить">&times;</button>
+                        </div>
+                    </div>
+                    <div class="gallery-cell filter-size">
+                        <div class="filter-input-wrapper">
+                            <input type="text" data-filter="size" placeholder="=96, <=300">
+                            <button class="clear-filter-btn hidden" title="Очистить">&times;</button>
+                        </div>
+                    </div>
+                    <div class="gallery-cell filter-file-size">
+                        <div class="filter-input-wrapper">
+                            <input type="text" data-filter="file_size" placeholder=">124, <=248">
+                            <button class="clear-filter-btn hidden" title="Очистить">&times;</button>
+                        </div>
+                    </div>
+                    <div class="gallery-cell filter-md5">
+                        <div class="filter-input-wrapper">
+                            <input type="text" data-filter="md5" placeholder="Фильтр...">
+                            <button class="clear-filter-btn hidden" title="Очистить">&times;</button>
+                        </div>
+                    </div>
+                    <div class="gallery-cell filter-sha256">
+                        <div class="filter-input-wrapper">
+                            <input type="text" data-filter="sha256" placeholder="Фильтр...">
+                            <button class="clear-filter-btn hidden" title="Очистить">&times;</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="galleryListWrapper" class="gallery-list-wrapper">
+                    <div id="galleryList" class="gallery-list-body">
+                        <!-- Содержимое будет сгенерировано JS -->
+                    </div>
+                    <div id="loadingOverlay" class="loading-overlay hidden">
+                        <div class="spinner"></div>
+                    </div>
+                    <div id="bottomLoadingIndicator" class="loading-indicator">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+                <div class="scroll-controls">
+                    <button id="scrollUpBtn" class="scroll-btn" title="В начало">
+                        <svg class="scroll-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path d="m18 15-6-6-6 6"/>
+                        </svg>
+                    </button>
+                    <button id="scrollDownBtn" class="scroll-btn" title="В конец">
+                        <svg class="scroll-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path d="m6 9 6 6 6-6"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="gallery-footer">
+                <div class="gallery-info" id="galleryInfo">
+                    <!-- Информация о количестве -->
+                </div>
+                <div class="pagination-controls" id="paginationControls">
+                    <!-- Пагинация -->
+                </div>
+                <div class="page-size-selector" id="pageSizeSelector">
+                    <!-- Выбор размера страницы -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="syncModal" class="modal" style="display: none;">
+    <div class="modal-content sync-modal-content">
+        <div class="modal-title">Синхронизация аватаров
+            <button id="closeSyncModalBtn" class="close-btn">✕</button>
+        </div>
+        <div class="modal-body sync-modal-body">
+            <div id="syncLog" class="sync-log-output"></div>
+        </div>
+    </div>
+</div>
+
+<div id="imageModal" class="image-modal hidden">
+    <div class="image-modal-container">
+        <img class="image-modal-content" id="modalImage">
+        <div class="image-modal-info" id="modalInfo"></div>
+    </div>
+</div>
+
+
+<script type="module" src="/static/js/gallery/main.js"></script>
+</body>
+</html>

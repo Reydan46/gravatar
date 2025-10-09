@@ -1,0 +1,45 @@
+.conf-entry {
+    padding-bottom: 4px;
+}
+
+.conf-list-header.users,
+.user-entry {
+    display: grid;
+    grid-template-columns: 104px 1fr 32px 32px 32px 32px 32px auto;
+    align-items: center;
+}
+
+.conf-list-header.users {
+    background: var(--container-bg);
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 5px;
+    grid-template-columns: 104px 1fr 32px 32px 32px 32px 32px var(--scrollbar-compensator-width);
+}
+
+.user-name-input {
+    margin-right: 7px;
+    font-size: 13px;
+    font-family: sans-serif;
+    box-sizing: border-box;
+    padding: 6px 12px;
+}
+
+.password-hash-input {
+    box-sizing: border-box;
+    padding: 6px 12px;
+}
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+    .user-name-input {
+        padding: 6px 8px;
+    }
+
+    .password-hash-input {
+        padding: 6px 8px;
+    }
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}

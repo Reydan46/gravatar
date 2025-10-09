@@ -1,0 +1,57 @@
+.animate-entry-child-add {
+    animation-name: entry-child-add-glow;
+    animation-timing-function: cubic-bezier(.46, .03, .52, .96);
+    /* animation-duration задаётся через JS! */
+}
+
+@keyframes entry-child-add-glow {
+    0% {
+        box-shadow: var(--animation-add-glow-start-shadow);
+        background-color: var(--animation-add-glow-start-bg);
+    }
+    40% {
+        box-shadow: var(--animation-add-glow-mid-shadow);
+        background-color: var(--animation-add-glow-mid-bg);
+    }
+    80% {
+        box-shadow: 0 0 0 0 #00ff0000;
+        background-color: transparent;
+    }
+    100% {
+        box-shadow: none;
+        background-color: transparent;
+    }
+}
+
+.animate-entry-child-remove {
+    animation-name: entry-child-remove-glow;
+    animation-timing-function: cubic-bezier(.46, .03, .52, .96);
+    /* animation-duration задаётся через JS! */
+}
+
+@keyframes entry-child-remove-glow {
+    0% {
+        box-shadow: var(--animation-remove-glow-start-shadow);
+        background-color: var(--animation-remove-glow-start-bg);
+    }
+    40% {
+        box-shadow: var(--animation-remove-glow-mid-shadow);
+        background-color: var(--animation-remove-glow-mid-bg);
+    }
+    80% {
+        box-shadow: 0 0 0 0 #ff464600;
+        background-color: transparent;
+    }
+    100% {
+        box-shadow: none;
+        background-color: transparent;
+    }
+}
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}

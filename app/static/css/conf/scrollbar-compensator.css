@@ -1,0 +1,18 @@
+:root {
+    --scrollbar-compensator-width: 0px;
+}
+
+.scrollbar-compensator {
+    width: var(--scrollbar-compensator-width, 0px);
+    min-width: var(--scrollbar-compensator-width, 0px);
+    height: 1px;
+    transition: width 0.15s;
+}
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}

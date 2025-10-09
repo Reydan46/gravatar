@@ -1,0 +1,21 @@
+.error-message {
+    color: var(--error-text-color);
+    margin-top: 10px;
+}
+
+.access-denied-message {
+    color: var(--error-text-color);
+    max-width: 700px;
+    margin: 30px auto 0 auto;
+    text-align: center;
+    font-size: 1.3em;
+    padding: 14px 8px 12px 8px;
+}
+
+/* Вертикальные экраны */
+@media screen and (max-width: 768px) {
+}
+
+/* Горизонтальные экраны */
+@media screen and (max-height: 500px) {
+}
