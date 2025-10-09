@@ -73,17 +73,30 @@ class SAMLService:
         :return: Объект HTMLResponse со скриптом для редиректа.
         :raises ValueError: Если произошла ошибка при обработке SAML.
         """
+        client_ip = request.client.host if request.client else "unknown"
+        logger.info(f"[{client_ip}] Received SAML ACS request. Processing...")
+
         auth = await self.get_auth_for_request(request)
+
+        # Получаем entityId IdP из настроек - это самый надежный способ
+        idp_entity_id = (
+            auth.get_settings().get_idp_data().get("entityId") or "unknown IdP"
+        )
+
         auth.process_response()
 
         errors = auth.get_errors()
         if errors:
             error_reason = auth.get_last_error_reason()
-            logger.error(f"SAML ACS Error: {errors}. Last reason: {error_reason}")
+            logger.error(
+                f"[{client_ip}] SAML ACS Error from IdP '{idp_entity_id}': {errors}. Last reason: {error_reason}"
+            )
             raise ValueError(f"SAML Error: {error_reason}")
 
         if not auth.is_authenticated():
-            logger.warning("SAML ACS: Not authenticated.")
+            logger.warning(
+                f"[{client_ip}] SAML ACS from IdP '{idp_entity_id}': Not authenticated."
+            )
             raise ValueError("Not authenticated")
 
         name_id = auth.get_nameid()
@@ -91,13 +104,14 @@ class SAMLService:
 
         if not name_id or not session_index:
             error_msg = f"NameID ({name_id}) or SessionIndex ({session_index}) not found in the SAML response."
-            logger.error(f"SAML ACS: {error_msg}")
+            logger.error(
+                f"[{client_ip}] SAML ACS from IdP '{idp_entity_id}': {error_msg}"
+            )
             raise ValueError(error_msg)
 
         username = name_id.strip()
-        client_ip = request.client.host if request.client else "unknown"
         logger.info(
-            f"[{client_ip}][{username}] Successful SAML authentication. SessionIndex: {session_index}"
+            f"[{client_ip}][{username}] Successful SAML authentication from IdP '{idp_entity_id}'. NameID: {name_id}, SessionIndex: {session_index}"
         )
 
         # JIT Provisioning
@@ -105,7 +119,9 @@ class SAMLService:
         user_exists = any(u.get("username") == username for u in all_users)
 
         if not user_exists:
-            logger.info(f"User '{username}' not found. Provisioning a new SAML user.")
+            logger.info(
+                f"[{client_ip}][{username}] User not found. Provisioning a new SAML user."
+            )
             new_user = {
                 "username": username,
                 "password_hash": SAML_USER_PASSWORD_HASH_PLACEHOLDER,
@@ -113,9 +129,9 @@ class SAMLService:
             }
             all_users.append(new_user)
             settings.users = all_users
-            logger.info(f"User '{username}' successfully provisioned.")
+            logger.info(f"[{client_ip}][{username}] User successfully provisioned.")
         else:
-            logger.info(f"SAML user '{username}' found in the system.")
+            logger.info(f"[{client_ip}][{username}] SAML user found in the system.")
 
         # Создание JWT сессии
         data_fgp = {
@@ -133,22 +149,29 @@ class SAMLService:
         )
         set_jwt_cookie(response, token)
 
-        # Получаем URL для редиректа из RelayState
         relay_state = auth.get_last_request_id()
-        redirect_url = URL_PAGE_HOME  # URL по умолчанию
+        redirect_url = URL_PAGE_HOME
+        relay_state_source = "default"
+
         if relay_state and relay_state.startswith("/"):
             redirect_url = relay_state
+            relay_state_source = "request_id"
         else:
-            # Fallback для случаев, когда RelayState приходит в теле POST
             try:
                 form_data = await request.form()
                 relay_state_from_post = form_data.get("RelayState")
                 if relay_state_from_post and relay_state_from_post.startswith("/"):
                     redirect_url = relay_state_from_post
+                    relay_state_source = "form_body"
             except Exception:
-                logger.warning("Could not parse form data to get RelayState.")
+                logger.warning(
+                    f"[{client_ip}][{username}] Could not parse form data to get RelayState."
+                )
 
-        # Создаем HTML-страницу с JS-редиректом
+        logger.info(
+            f"[{client_ip}][{username}] Determined redirect URL: {redirect_url} (from {relay_state_source})."
+        )
+
         html_content = f"""
         <!DOCTYPE html>
         <html>
@@ -163,7 +186,6 @@ class SAMLService:
         </body>
         </html>
         """
-        # response уже содержит cookie, мы просто возвращаем его с HTML-контентом
         return HTMLResponse(content=html_content, headers=response.headers)
 
     async def slo(self, request: Request) -> RedirectResponse:
@@ -173,20 +195,26 @@ class SAMLService:
         :param request: Объект запроса FastAPI.
         :return: Редирект на финальный эндпоинт очистки сессии.
         """
+        client_ip = request.client.host if request.client else "unknown"
         auth = await self.get_auth_for_request(request)
-
-        # URL, на который мы перейдем ПОСЛЕ обработки запроса от IdP
         final_logout_url = "/auth/logout/final"
 
-        auth.process_slo(delete_session_cb=lambda: None)
+        # Получаем entityId IdP из настроек - это самый надежный способ
+        idp_entity_id = (
+            auth.get_settings().get_idp_data().get("entityId") or "unknown IdP"
+        )
 
+        auth.process_slo(delete_session_cb=lambda: None)
         errors = auth.get_errors()
+
         if errors:
             error_reason = auth.get_last_error_reason()
-            logger.error(f"SAML SLO processing error: {errors}. Reason: {error_reason}")
+            logger.error(
+                f"[{client_ip}] Error processing SAML SLS request from IdP '{idp_entity_id}': {errors}. Reason: {error_reason}"
+            )
         else:
             logger.info(
-                "Successfully processed SLO request from IdP. Redirecting to final logout."
+                f"[{client_ip}] Processed SAML SLS request from IdP '{idp_entity_id}'. Redirecting to: {final_logout_url}"
             )
 
         return RedirectResponse(url=final_logout_url)

@@ -45,15 +45,21 @@ async def sso(request: Request):
     :param request: Объект запроса FastAPI.
     :return: Редирект на страницу IdP.
     """
+    client_ip = request.client.host
     if not saml_service.is_enabled():
+        logger.warning(
+            f"[{client_ip}] SAML SSO request received, but SAML is disabled."
+        )
         raise HTTPException(
             status_code=HTTP_404_NOT_FOUND, detail="SAML is not configured"
         )
     try:
         auth = await saml_service.get_auth_for_request(request)
-        # В RelayState можно передать URL, куда вернуть пользователя
         return_to = request.query_params.get("next", URL_PAGE_HOME)
         sso_url = auth.login(return_to=return_to)
+        logger.info(
+            f"[{client_ip}] Initiating SAML SSO. Redirecting to IdP. RelayState: {return_to}"
+        )
         return RedirectResponse(url=sso_url)
     except Exception as e:
         log_request_error(request, e)
@@ -98,12 +104,10 @@ async def slo(request: Request):
     :param request: Объект запроса FastAPI.
     :return: Редирект на страницу выхода IdP.
     """
+    client_ip = request.client.host
     if not saml_service.is_enabled():
-        # Эта проверка важна: если кто-то обратится к /saml/slo, когда SAML выключен,
-        # мы не должны пытаться обработать это. Вместо этого, перенаправляем
-        # на универсальный обработчик выхода.
         logger.warning(
-            "SAML SLO endpoint was accessed, but SAML is disabled. Redirecting to final logout."
+            f"[{client_ip}] SAML SLO endpoint was accessed, but SAML is disabled. Redirecting to final logout."
         )
         return RedirectResponse(
             url="/auth/logout/final", status_code=HTTP_307_TEMPORARY_REDIRECT
@@ -111,7 +115,9 @@ async def slo(request: Request):
 
     token = get_token_from_request(request)
     if not token:
-        # Если токена нет, просто редиректим на страницу входа
+        logger.info(
+            f"[{client_ip}] SAML SLO endpoint accessed without a token. Redirecting to /auth."
+        )
         return RedirectResponse(url="/auth")
 
     try:
@@ -127,15 +133,13 @@ async def slo(request: Request):
 
         if not name_id or not session_index:
             logger.warning(
-                f"User '{username}' attempted SLO without SAML session info. Redirecting to final logout."
+                f"[{client_ip}][{username}] User attempted SLO without SAML session info in token. Redirecting to final logout."
             )
-            # Если нет данных для SAML SLO, перенаправляем на финальную очистку
             return RedirectResponse(
                 url="/auth/logout/final", status_code=HTTP_307_TEMPORARY_REDIRECT
             )
 
         auth = await saml_service.get_auth_for_request(request)
-        # В RelayState передаем URL, куда IdP должен вернуть нас после выхода
         base_url = str(request.base_url)
         return_to = f"{base_url.rstrip('/')}/saml/sls"
         slo_url = auth.logout(
@@ -143,7 +147,7 @@ async def slo(request: Request):
         )
 
         logger.info(
-            f"User '{username}' initiated SAML SLO. Redirecting to IdP. return_to={return_to}"
+            f"[{client_ip}][{username}] Initiated SAML SLO. Redirecting to IdP. return_to={return_to}"
         )
         return RedirectResponse(url=slo_url)
 

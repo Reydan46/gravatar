@@ -147,9 +147,13 @@ async def logout(request: Request):
     :param request: HTTP-запрос
     :return: RedirectResponse, инициирующий выход.
     """
+    client_ip = request.client.host
     token = get_token_from_request(request)
+
     if not token:
-        # Если токена уже нет, просто отправляем на страницу входа
+        logger.info(
+            f"[{client_ip}] Logout attempt without token. Redirecting to /auth."
+        )
         return RedirectResponse(url="/auth", status_code=HTTP_307_TEMPORARY_REDIRECT)
 
     try:
@@ -162,13 +166,13 @@ async def logout(request: Request):
     except jwt.PyJWTError:
         payload = {}
 
+    username = payload.get("sub", "<unknown>")
     is_saml_user = "sid" in payload and "nameid" in payload
     saml_enabled = settings.saml_options.get("enabled", False)
 
     if is_saml_user and saml_enabled:
-        # Это SAML-пользователь и SAML включен, редирект на инициирование SAML SLO
         logger.info(
-            f"[{request.client.host}][{payload.get('sub')}] SAML user logout initiated, redirecting to SLO endpoint."
+            f"[{client_ip}][{username}] SAML user logout initiated. Redirecting to SLO endpoint."
         )
         return RedirectResponse(
             url="/saml/slo", status_code=HTTP_307_TEMPORARY_REDIRECT
@@ -176,10 +180,12 @@ async def logout(request: Request):
     else:
         if is_saml_user and not saml_enabled:
             logger.info(
-                f"[{request.client.host}][{payload.get('sub')}] SAML user logging out, but SAML is disabled. Proceeding with local logout."
+                f"[{client_ip}][{username}] SAML user logging out, but SAML is disabled. Proceeding with local logout."
             )
-        # Для обычного пользователя или SAML-пользователя при выключенном SAML
-        # сразу переходим на финальный эндпоинт
+        else:
+            logger.info(
+                f"[{client_ip}][{username}] Standard user logout initiated. Proceeding with local logout."
+            )
         return RedirectResponse(
             url="/auth/logout/final", status_code=HTTP_307_TEMPORARY_REDIRECT
         )
@@ -199,7 +205,7 @@ async def logout_final(request: Request):
     username = get_username_from_token(token)
 
     logger.info(
-        f"[{client_ip}][{username}] Finalizing logout, clearing cookies and redirecting to /auth."
+        f"[{client_ip}][{username}] Finalizing logout. Clearing cookies and redirecting to /auth."
     )
 
     response = RedirectResponse(url="/auth", status_code=HTTP_307_TEMPORARY_REDIRECT)
