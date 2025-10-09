@@ -38,17 +38,38 @@ jobs:
       - name: Minify JS and CSS files in build context
         run: |
           echo "Minifying JavaScript files..."
-          find ./build_context/app/static/js -type f -name "*.js" -not -name "*.min.js" | while read file; do
-            echo "Processing JS: $file"
-            terser "$file" --compress --mangle --source-map "url='${file##*/}.map'" --output "$file"
-          done
+          find ./build_context/app/static/js -type f -name "*.js" -not -name "*.min.js" \
+            -exec echo "Processing JS: {}" \; \
+            -exec terser {} --compress --mangle --source-map "url='${file##*/}.map'" --output {} \;
 
           echo "Minifying CSS files..."
-          find ./build_context/app/static/css -type f -name "*.css" -not -name "*.min.css" | while read file; do
-            echo "Processing CSS: $file"
-            csso --input "$file" --output "$file"
-          done
+          find ./build_context/app/static/css -type f -name "*.css" -not -name "*.min.css" \
+            -exec echo "Processing CSS: {}" \; \
+            -exec csso --input {} --output {} \;
+
           echo "Minification complete."
+
+      - name: Verify minification results
+        run: |
+          echo " "
+          echo "---- Verifying file content after minification ----"
+          echo " "
+          echo "File: ./build_context/app/static/js/logs/settings/ui.js"
+          echo "Size:"
+          ls -lh ./build_context/app/static/js/logs/settings/ui.js
+          echo "Content preview:"
+          cat ./build_context/app/static/js/logs/settings/ui.js
+          echo " "
+          echo "----------------------------------------------------"
+          echo " "
+          echo "File: ./build_context/app/static/css/share/errors.css"
+          echo "Size:"
+          ls -lh ./build_context/app/static/css/share/errors.css
+          echo "Content preview:"
+          cat ./build_context/app/static/css/share/errors.css
+          echo " "
+          echo "---- Verification complete ----"
+          echo " "
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
