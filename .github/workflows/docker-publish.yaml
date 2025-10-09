@@ -26,19 +26,25 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Prepare build context
+        run: |
+          mkdir -p build_context
+          cp -r app build_context/
+          cp Dockerfile entrypoint.sh nginx.conf requirements.txt build_context/
+
       - name: Install minification tools
         run: npm install -g terser csso-cli
 
-      - name: Minify JS and CSS files
+      - name: Minify JS and CSS files in build context
         run: |
           echo "Minifying JavaScript files..."
-          find ./app/static/js -type f -name "*.js" -not -name "*.min.js" | while read file; do
+          find ./build_context/app/static/js -type f -name "*.js" -not -name "*.min.js" | while read file; do
             echo "Processing JS: $file"
             terser "$file" --compress --mangle --source-map "url='${file##*/}.map'" --output "$file"
           done
 
           echo "Minifying CSS files..."
-          find ./app/static/css -type f -name "*.css" -not -name "*.min.css" | while read file; do
+          find ./build_context/app/static/css -type f -name "*.css" -not -name "*.min.css" | while read file; do
             echo "Processing CSS: $file"
             csso --input "$file" --output "$file"
           done
@@ -73,8 +79,8 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./build_context
+          file: ./build_context/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64
           build-args: |
