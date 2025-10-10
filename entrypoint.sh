@@ -43,11 +43,14 @@ sed -i "s/NGINX_PORT/$NGINX_PORT$SSL_CONF_FOUND/g; s/APP_PORT/$APP_PORT/g" /etc/
 echo "----------------------------------------------------"
 echo "Nginx is configured to listen on port: ${NGINX_PORT} (${PROTOCOL})"
 echo "Uvicorn will be started on port:       ${APP_PORT}"
+if [ "$APP_RELOAD" = "True" ]; then
+    echo "Auto-reload on code change:            Enabled"
+fi
 if [ -n "$TRUSTED_PROXY_IPS" ]; then
     echo "Trusted proxy IPs set to:              ${TRUSTED_PROXY_IPS}"
 fi
 echo "----------------------------------------------------"
 echo "Starting supervisor..."
 
-exec env PYTHONWARNINGS="ignore:pkg_resources is deprecated" \
+exec env PYTHONWARNINGS="ignore:pkg_resources is deprecated,ignore:resource_tracker" \
     /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
