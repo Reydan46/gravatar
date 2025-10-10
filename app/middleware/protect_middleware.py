@@ -1,10 +1,11 @@
 import logging
+from typing import Callable
+
 from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_403_FORBIDDEN
-from typing import Callable
 
-from config.constants import LOG_CONFIG
+from config.constants import LOG_CONFIG, PROTECT_MIDDLEWARE_EXCLUDE_PATHS
 from config.settings import settings
 
 logger = logging.getLogger(LOG_CONFIG["main_logger_name"])
@@ -24,6 +25,7 @@ class HostAllowMiddleware:
         :param app: ASGI-приложение
         """
         self.app = app
+        self.exclude_paths = PROTECT_MIDDLEWARE_EXCLUDE_PATHS
 
     @staticmethod
     def _extract_host(headers: list[tuple[bytes, bytes]]) -> str:
@@ -49,6 +51,11 @@ class HostAllowMiddleware:
         :return: None
         """
         if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        path = scope.get("path", "")
+        if path in self.exclude_paths:
             await self.app(scope, receive, send)
             return
 

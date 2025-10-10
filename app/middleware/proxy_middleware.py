@@ -5,7 +5,11 @@ from typing import Dict
 from starlette.types import ASGIApp, Receive, Scope, Send
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
-from config.constants import LOG_CONFIG, PROXY_MIDDLEWARE_LOG_THROTTLE_SECONDS
+from config.constants import (
+    LOG_CONFIG,
+    PROXY_MIDDLEWARE_EXCLUDE_IPS,
+    PROXY_MIDDLEWARE_LOG_THROTTLE_SECONDS,
+)
 from config.settings import settings
 
 logger = logging.getLogger(LOG_CONFIG["main_logger_name"])
@@ -33,6 +37,7 @@ class ProxyMiddleware:
         self.config = settings.trusted_proxy_ips_config
         self.proxy_headers_app = ProxyHeadersMiddleware(app, trusted_hosts=self.config)
         self.log_throttle_seconds = log_throttle_seconds
+        self.exclude_ips = set(PROXY_MIDDLEWARE_EXCLUDE_IPS)
         self._last_log_time_by_ip: Dict[str, float] = {}
 
     def _should_log(self, ip: str) -> bool:
@@ -64,8 +69,13 @@ class ProxyMiddleware:
             await self.app(scope, receive, send)
             return
 
+        client_ip = scope.get("client", ("unknown", 0))[0]
+
+        if client_ip in self.exclude_ips:
+            await self.app(scope, receive, send)
+            return
+
         if isinstance(self.config, list) and self.config:
-            client_ip = scope.get("client", ("unknown", 0))[0]
             if client_ip not in self.config:
                 headers = dict(scope.get("headers", []))
                 proxy_header_keys = [

@@ -172,6 +172,12 @@ ADMIN_REFERER_EXCLUDE_TARGETS = ["/avatar", "/gallery", "/saml"]
 # Интервал (сек) для подавления лог-спама от недоверенных IP в ProxyMiddleware. 0=выкл.
 PROXY_MIDDLEWARE_LOG_THROTTLE_SECONDS = 60
 
+# Список IP-адресов для исключения из проверок ProxyMiddleware (например, для систем мониторинга)
+PROXY_MIDDLEWARE_EXCLUDE_IPS = []
+
+# Список путей для исключения из проверки HostAllowMiddleware
+PROTECT_MIDDLEWARE_EXCLUDE_PATHS = ["/health"]
+
 # Константы для аватаров
 AVATARS_PATH = "avatars"  # Относительно internal_data_path
 AVATAR_METADATA_FILENAME = "images_metadata.json"  # Относительно AVATARS_PATH
