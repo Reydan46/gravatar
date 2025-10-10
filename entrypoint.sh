@@ -19,8 +19,6 @@ if [ -n "$DOCKER_GATEWAY_IP" ]; then
 
     if [ -n "$TRUSTED_PROXY_IPS" ]; then
         export TRUSTED_PROXY_IPS="${TRUSTED_PROXY_IPS},${DOCKER_GATEWAY_IP}"
-    else
-        export TRUSTED_PROXY_IPS="${DOCKER_GATEWAY_IP}"
     fi
 else
     echo "Warning: Could not detect Docker gateway IP."
