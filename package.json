@@ -1,0 +1,10 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "Frontend assets",
+  "private": true,
+  "devDependencies": {
+    "csso-cli": "^4.0.2",
+    "terser": "^5.44.0"
+  }
+}

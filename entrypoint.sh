@@ -1,37 +1,28 @@
 #!/bin/sh
 set -e
 
-# Если первый аргумент - hash_password
+# Если первый аргумент - "hash_password", то запускаем утилиту для хеширования
 if [ "$1" = "hash_password" ]; then
     # Запускаем скрипт хеширования пароля в интерактивном режиме
     python /app/utils/password_utils.py
     exit 0
 fi
 
-# Шаблонизация nginx.conf (подставляем переменные)
 SSL_CONF_FOUND=
-for f in /etc/nginx/conf.d/*ssl*.conf; do
-    [ -e "$f" ] && SSL_CONF_FOUND=" ssl" && break
-done
+if ls /etc/nginx/conf.d/*ssl*.conf 1>/dev/null 2>&1; then
+    SSL_CONF_FOUND=" ssl"
+    PROTOCOL="https"
+else
+    PROTOCOL="http"
+fi
 
 sed -i "s/NGINX_PORT/$NGINX_PORT$SSL_CONF_FOUND/g; s/APP_PORT/$APP_PORT/g" /etc/nginx/nginx.conf
 
-# Запуск обоих процессов: nginx и uvicorn
-# (nginx — main process для Docker + Uvicorn в фоне)
-nginx -c /etc/nginx/nginx.conf &
+echo "----------------------------------------------------"
+echo "Nginx is configured to listen on port: ${NGINX_PORT} (${PROTOCOL})"
+echo "Uvicorn will be started on port:       ${APP_PORT}"
+echo "----------------------------------------------------"
+echo "Starting supervisor..."
 
-set --
-if [ "$APP_RELOAD" = "True" ]; then
-    set -- "$@" --reload
-fi
-
-export PYTHONWARNINGS="ignore:resource_tracker"
-
-exec uvicorn main:app \
-    --host "$APP_HOST" \
-    --port "$APP_PORT" \
-    --workers "$APP_WORKERS" \
-    --no-access-log \
-    --loop uvloop \
-    --lifespan on \
-    "$@"
+exec env PYTHONWARNINGS="ignore:pkg_resources is deprecated" \
+    /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
