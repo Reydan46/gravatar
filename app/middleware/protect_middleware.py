@@ -1,5 +1,5 @@
 import logging
-from typing import Callable
+from typing import Callable, List, Union
 
 from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
@@ -26,6 +26,8 @@ class HostAllowMiddleware:
         """
         self.app = app
         self.exclude_paths = PROTECT_MIDDLEWARE_EXCLUDE_PATHS
+        self.allowed_hosts: Union[List[str], str] = settings.allowed_hosts
+        self.is_wildcard = self.allowed_hosts == "*"
 
     @staticmethod
     def _extract_host(headers: list[tuple[bytes, bytes]]) -> str:
@@ -59,13 +61,18 @@ class HostAllowMiddleware:
             await self.app(scope, receive, send)
             return
 
+        if self.is_wildcard:
+            await self.app(scope, receive, send)
+            return
+
         headers = scope.get("headers", [])
         host = self._extract_host(headers)
         client = scope.get("client")
         client_ip = client[0] if client else "unknown"
+
         try:
-            allowed_hosts = set(settings.allowed_hosts)
-            if allowed_hosts and host not in allowed_hosts:
+            # allowed_hosts здесь всегда будет списком, т.к. is_wildcard уже проверен
+            if host not in self.allowed_hosts:
                 logger.warning(f"[{client_ip}] Forbidden access host: {host}")
                 raise HTTPException(
                     status_code=HTTP_403_FORBIDDEN, detail="Access denied"

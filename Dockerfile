@@ -68,6 +68,7 @@ COPY supervisord.conf /etc/supervisor/supervisord.conf
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh /entrypoint.sh
 COPY start-uvicorn.sh /start-uvicorn.sh
+COPY defaults.env /defaults.env
 
 RUN rm -rf /var/cache/apk/* \
     && mkdir -p /var/log/supervisor /run/nginx \

@@ -1,13 +1,12 @@
 import logging
 import time
-from typing import Dict
+from typing import Dict, Set
 
 from starlette.types import ASGIApp, Receive, Scope, Send
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from config.constants import (
     LOG_CONFIG,
-    PROXY_MIDDLEWARE_EXCLUDE_IPS,
     PROXY_MIDDLEWARE_LOG_THROTTLE_SECONDS,
 )
 from config.settings import settings
@@ -25,7 +24,7 @@ class ProxyMiddleware:
         self,
         app: ASGIApp,
         log_throttle_seconds: int = PROXY_MIDDLEWARE_LOG_THROTTLE_SECONDS,
-    ):
+    ) -> None:
         """
         Инициализирует middleware.
 
@@ -34,11 +33,31 @@ class ProxyMiddleware:
                                      повторные предупреждения от одного IP будут подавляться.
         """
         self.app = app
+        self.proxy_headers_app = ProxyHeadersMiddleware(
+            app, trusted_hosts=settings.trusted_proxy_ips_config
+        )
+
         self.config = settings.trusted_proxy_ips_config
-        self.proxy_headers_app = ProxyHeadersMiddleware(app, trusted_hosts=self.config)
+        self.is_wildcard = self.config == "*"
+        self.trusted_ips: Set[str] = (
+            set(self.config) if isinstance(self.config, list) else set()
+        )
+
         self.log_throttle_seconds = log_throttle_seconds
-        self.exclude_ips = set(PROXY_MIDDLEWARE_EXCLUDE_IPS)
+        # Список IP для полного исключения из логики этой middleware (например, мониторинг)
+        self.ignore_ips: Set[str] = set(settings.proxy_middleware_ignore_ips)
         self._last_log_time_by_ip: Dict[str, float] = {}
+
+    def _is_trusted(self, ip: str) -> bool:
+        """
+        Проверяет, является ли IP-адрес доверенным для обработки прокси-заголовков.
+
+        :param ip: IP-адрес для проверки.
+        :return: True, если IP доверенный.
+        """
+        if self.is_wildcard:
+            return True
+        return ip in self.trusted_ips
 
     def _should_log(self, ip: str) -> bool:
         """
@@ -71,29 +90,34 @@ class ProxyMiddleware:
 
         client_ip = scope.get("client", ("unknown", 0))[0]
 
-        if client_ip in self.exclude_ips:
+        if client_ip in self.ignore_ips:
+            # Если IP в списке игнорируемых, пропускаем всю логику middleware,
+            # включая ProxyHeadersMiddleware, чтобы заголовки не изменялись.
             await self.app(scope, receive, send)
             return
 
-        if isinstance(self.config, list) and self.config:
-            if client_ip not in self.config:
-                headers = dict(scope.get("headers", []))
-                proxy_header_keys = [
-                    b"x-forwarded-for",
-                    b"x-forwarded-proto",
-                    b"x-forwarded-host",
-                    b"x-real-ip",
-                ]
-                sent_proxy_headers = {
-                    key.decode(): value.decode()
-                    for key, value in headers.items()
-                    if key.lower() in proxy_header_keys
-                }
+        if not self._is_trusted(client_ip):
+            headers = dict(scope.get("headers", []))
+            proxy_header_keys = {
+                b"x-forwarded-for",
+                b"x-forwarded-proto",
+                b"x-forwarded-host",
+                b"x-real-ip",
+            }
+            sent_proxy_headers = {
+                key.decode("latin-1"): value.decode("latin-1")
+                for key, value in headers.items()
+                if key.lower() in proxy_header_keys
+            }
 
-                if sent_proxy_headers and self._should_log(client_ip):
-                    logger.warning(
-                        f"[{client_ip}] Received proxy headers from an untrusted source. "
-                        f"Headers will be ignored. Sent headers: {sent_proxy_headers}"
-                    )
+            if sent_proxy_headers and self._should_log(client_ip):
+                logger.warning(
+                    "[%s] Received proxy headers from an untrusted source. "
+                    "Headers will be ignored. Sent headers: %s",
+                    client_ip,
+                    sent_proxy_headers,
+                )
 
+        # Передаем управление ProxyHeadersMiddleware, который использует
+        # ту же конфигурацию trusted_hosts.
         await self.proxy_headers_app(scope, receive, send)

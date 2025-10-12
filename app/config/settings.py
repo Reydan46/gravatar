@@ -6,6 +6,8 @@ import string
 import uuid
 from typing import List, Optional, Union
 
+from dotenv import dotenv_values
+
 from config.constants import CONFIG_FILE, LOG_CONFIG, SECRET_FILE
 from config.settings_descriptors import YamlSettingsDescriptorSHM
 from utils.password_utils import check_password
@@ -23,20 +25,11 @@ class Settings:
 
     _instance: Optional["Settings"] = None
     _initialized: bool = False
+    _loaded_defaults = dotenv_values("/defaults.env") or {}
 
     DEFAULT_SETTINGS = {
-        "app_host": "0.0.0.0",
-        "app_port": "8888",
-        "nginx_port": "8999",
-        "app_workers": "3",
-        "app_reload": "False",
-        "internal_data_path": "/data/",
-        "show_debug_logs": "False",
-        "jwt_algorithm": "HS256",
+        **{k.lower(): v for k, v in _loaded_defaults.items()},
         "passphrase": "",
-        "cors_allow_origins": "*",
-        "allowed_hosts": "",
-        "trusted_proxy_ips": "*",
         "users": [],
         "ldap_options": {
             "LDAP_SERVER": "",
@@ -131,7 +124,7 @@ class Settings:
         self._jwt_algorithm: str = os.getenv(
             "JWT_ALGORITHM", self.DEFAULT_SETTINGS["jwt_algorithm"]
         )
-        self._cors_allow_origins: str = os.getenv(
+        self._cors_allow_origins_raw: str = os.getenv(
             "CORS_ALLOW_ORIGINS", self.DEFAULT_SETTINGS["cors_allow_origins"]
         )
         self._allowed_hosts_raw: str = os.getenv(
@@ -139,6 +132,10 @@ class Settings:
         )
         self._trusted_proxy_ips_raw: str = os.getenv(
             "TRUSTED_PROXY_IPS", self.DEFAULT_SETTINGS["trusted_proxy_ips"]
+        )
+        self._proxy_middleware_ignore_ips_raw: str = os.getenv(
+            "PROXY_MIDDLEWARE_IGNORE_IPS",
+            self.DEFAULT_SETTINGS["proxy_middleware_ignore_ips"],
         )
 
         self._initialize_passphrase()
@@ -212,11 +209,10 @@ class Settings:
     @property
     def trusted_proxy_ips_config(self) -> Union[List[str], str]:
         """
-        Готовит конфигурацию для ProxyHeadersMiddleware на основе TRUSTED_PROXY_IPS.
+        Готовит конфигурацию для ProxyHeadersMiddleware на основе TRUSTED_PROXY_IPS
 
-        - По умолчанию (переменная не задана): возвращает "*" (доверять всем).
-        - Если задана как пустая строка: возвращает [] (не доверять никому).
-        - Если задана как "*": возвращает "*".
+        - Если установлено "*": возвращает "*" (доверять всем).
+        - Если установлено пустое значение: возвращает [] (не доверять никому).
         - Если задан список IP: возвращает этот список.
 
         :return: Конфигурация для trusted_hosts.
@@ -232,26 +228,59 @@ class Settings:
         return [ip.strip() for ip in raw_value.split(",") if ip.strip()]
 
     @property
-    def cors_allow_origins(self) -> list[str]:
+    def proxy_middleware_ignore_ips(self) -> List[str]:
         """
-        Список разрешённых источников CORS из переменной окружения.
-        Если задано '*', разрешает любые источники.
+        Список IP-адресов, которые будут полностью проигнорированы Proxy Middleware
+        Берется из переменной окружения PROXY_MIDDLEWARE_IGNORE_IPS
 
-        :return: Список строк (origins) или ['*']
+        :return: Список строк (IP-адресов).
         """
-        origins = [o.strip() for o in self._cors_allow_origins.split(",") if o.strip()]
-        return ["*"] if "*" in origins else origins
+        raw_value = self._proxy_middleware_ignore_ips_raw.strip()
+        if not raw_value:
+            return []
+        return [ip.strip() for ip in raw_value.split(",") if ip.strip()]
 
     @property
-    def allowed_hosts(self) -> List[str]:
+    def cors_allow_origins(self) -> List[str]:
+        """
+        Список разрешённых источников CORS из переменной окружения
+
+        - Если установлено "*": возвращает ["*"] (разрешить все).
+        - Если установлено пустое значение: возвращает [] (запретить все).
+        - Если задан список: возвращает этот список.
+
+        :return: Список строк (origins).
+        """
+        raw_value = self._cors_allow_origins_raw.strip()
+
+        if raw_value == "*":
+            return ["*"]
+
+        if not raw_value:
+            return []
+
+        return [origin.strip() for origin in raw_value.split(",") if origin.strip()]
+
+    @property
+    def allowed_hosts(self) -> Union[List[str], str]:
         """
         Список разрешённых доменных имен (host) из переменной окружения ALLOWED_HOSTS
 
-        :return: Список строк (хосты)
+        - Если установлено "*": возвращает "*" (разрешить все).
+        - Если установлено пустое значение: возвращает [] (запретить все).
+        - Если задан список: возвращает этот список.
+
+        :return: Список строк (хосты) или строка "*".
         """
-        return [
-            h.strip().lower() for h in self._allowed_hosts_raw.split(",") if h.strip()
-        ]
+        raw_value = self._allowed_hosts_raw.strip()
+
+        if raw_value == "*":
+            return "*"
+
+        if not raw_value:
+            return []
+
+        return [h.strip().lower() for h in raw_value.split(",") if h.strip()]
 
     @property
     def app_host(self) -> str:
@@ -271,7 +300,7 @@ class Settings:
         """
         try:
             return int(self._app_port)
-        except ValueError:
+        except (ValueError, TypeError):
             logger.warning(
                 f"Invalid APP_PORT value: {self._app_port}, using default {self.DEFAULT_SETTINGS['app_port']}"
             )
@@ -286,7 +315,7 @@ class Settings:
         """
         try:
             return int(self._nginx_port)
-        except ValueError:
+        except (ValueError, TypeError):
             logger.warning(
                 f"Invalid NGINX_PORT value: {self._nginx_port}, using default {self.DEFAULT_SETTINGS['nginx_port']}"
             )
@@ -301,7 +330,7 @@ class Settings:
         """
         try:
             return int(self._app_workers)
-        except ValueError:
+        except (ValueError, TypeError):
             logger.warning(
                 f"Invalid APP_WORKERS value: {self._app_workers}, using default {self.DEFAULT_SETTINGS['app_workers']}"
             )
@@ -317,7 +346,7 @@ class Settings:
         if isinstance(self._app_reload, bool):
             return self._app_reload
 
-        return self._app_reload.lower() in ("true", "t", "yes", "y", "1")
+        return str(self._app_reload).lower() in ("true", "t", "yes", "y", "1")
 
     @property
     def internal_data_path(self) -> str:
@@ -338,7 +367,7 @@ class Settings:
         if isinstance(self._show_debug_logs, bool):
             return self._show_debug_logs
 
-        return self._show_debug_logs.lower() in ("true", "t", "yes", "y", "1")
+        return str(self._show_debug_logs).lower() in ("true", "t", "yes", "y", "1")
 
     @property
     def jwt_secret_key(self) -> str:
