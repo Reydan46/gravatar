@@ -1,0 +1,21 @@
+# Git
+.git
+.github
+.gitignore
+
+# IDE-специфичные файлы
+.idea/
+.vscode/
+
+# Python кэш и виртуальные окружения
+__pycache__/
+.venv/
+venv/
+*.egg-info/
+
+# Локальные артефакты сборки
+dist/
+
+# Файлы операционной системы
+.DS_Store
+Thumbs.db
