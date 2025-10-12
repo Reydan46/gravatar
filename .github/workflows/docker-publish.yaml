@@ -8,7 +8,6 @@ on:
 env:
   IMAGE_NAME: gravatar
   PYTHON_VERSION: "3.13"
-  NODE_VERSION: "20.x"
 
 jobs:
   build:
@@ -20,56 +19,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Prepare build context
-        run: |
-          mkdir -p build_context
-          cp -r app build_context/
-          cp Dockerfile entrypoint.sh nginx.conf requirements.txt build_context/
-
-      - name: Install minification tools
-        run: npm install -g terser csso-cli
-
-      - name: Minify JS and CSS files in build context
-        run: |
-          echo "Minifying JavaScript files..."
-          find ./build_context/app/static/js -type f -name "*.js" -not -name "*.min.js" \
-            -exec echo "Processing JS: {}" \; \
-            -exec terser {} --compress --mangle --source-map "url='${file##*/}.map'" --output {} \;
-
-          echo "Minifying CSS files..."
-          find ./build_context/app/static/css -type f -name "*.css" -not -name "*.min.css" \
-            -exec echo "Processing CSS: {}" \; \
-            -exec csso --input {} --output {} \;
-
-          echo "Minification complete."
-
-      - name: Verify minification results
-        run: |
-          echo " "
-          echo "---- Verifying file content after minification ----"
-          echo " "
-          echo "File: ./build_context/app/static/js/logs/settings/ui.js"
-          echo "Size:"
-          ls -lh ./build_context/app/static/js/logs/settings/ui.js
-          echo "Content preview:"
-          cat ./build_context/app/static/js/logs/settings/ui.js
-          echo " "
-          echo "----------------------------------------------------"
-          echo " "
-          echo "File: ./build_context/app/static/css/share/errors.css"
-          echo "Size:"
-          ls -lh ./build_context/app/static/css/share/errors.css
-          echo "Content preview:"
-          cat ./build_context/app/static/css/share/errors.css
-          echo " "
-          echo "---- Verification complete ----"
-          echo " "
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -100,8 +49,8 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@v5
         with:
-          context: ./build_context
-          file: ./build_context/Dockerfile
+          context: .
+          file: ./Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64
           build-args: |
