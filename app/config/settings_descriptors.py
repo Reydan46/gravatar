@@ -127,6 +127,8 @@ class YamlSettingsDescriptorSHM:
                         allow_unicode=True,
                         sort_keys=False,
                     )
+                if os.name != "nt":
+                    os.chmod(path, 0o600)
 
                 # Обновляем shared memory
                 file_mtime = int(os.path.getmtime(path))

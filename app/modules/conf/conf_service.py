@@ -37,7 +37,7 @@ def get_config_data_service() -> dict:
 
 
 def compose_update_data(
-        current_settings: Dict[str, Any], update_data: Dict[str, Any]
+    current_settings: Dict[str, Any], update_data: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
     Валидирует и собирает новые значения для всех ключей настроек
@@ -65,6 +65,8 @@ def save_settings_to_file(settings_path: str, data: Dict[str, Any]) -> None:
     sorted_data = {k: data[k] for k in sorted(data)}
     with open(settings_path, "w", encoding="utf-8") as f:
         yaml.dump(sorted_data, f, allow_unicode=True, sort_keys=False)
+    if os.name != "nt":
+        os.chmod(settings_path, 0o600)
 
 
 async def update_config_service(update_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -98,7 +100,7 @@ async def update_config_service(update_data: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def validate_and_save_restored_config(
-        file_contents: str,
+    file_contents: str,
 ) -> Dict[str, Union[bool, str]]:
     """
     Валидирует и сохраняет конфигурацию из файла восстановления
