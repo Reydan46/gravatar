@@ -13,7 +13,7 @@ from api.gallery.gallery_schema import PaginatedAvatarsResponse
 from config.constants import LOG_CONFIG
 from modules.auth.auth_jwt import validate_jwt
 from modules.auth.auth_permissions import Permissions, require_permission
-from modules.crypto.crypto_operations import decrypt_hybrid, encrypt_hybrid
+from modules.crypto.operations.hybrid import decrypt_hybrid, encrypt_hybrid
 from modules.gallery.gallery_service import get_paginated_avatars
 from utils.request_logging import log_request_error
 

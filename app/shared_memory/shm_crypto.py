@@ -1,6 +1,5 @@
 import logging
 import struct
-import time
 from typing import Optional
 
 from cryptography.hazmat.backends import default_backend
@@ -51,14 +50,14 @@ def cleanup_crypto_shm(shm, is_creator: bool):
 
 
 def _pack_entry(
-    private_key: RSAPrivateKey, public_key: RSAPublicKey, last_rotation: float
+    private_key: RSAPrivateKey, public_key: RSAPublicKey, created_at: float
 ) -> bytes:
     """
     Упаковывает ключи и время ротации через struct
 
     :param private_key: приватный ключ
     :param public_key: публичный ключ
-    :param last_rotation: время ротации
+    :param created_at: время создания/ротации
     :return: struct entry
     """
     priv_bytes = private_key.private_bytes(
@@ -73,7 +72,7 @@ def _pack_entry(
     packed = ENTRY_STRUCT.pack(
         len(priv_bytes),
         len(pub_bytes),
-        float(last_rotation),
+        float(created_at),
         priv_bytes.ljust(CONF["ENTRY_SIZES"]["priv_bytes"], b"\x00"),
         pub_bytes.ljust(CONF["ENTRY_SIZES"]["pub_bytes"], b"\x00"),
     )
@@ -105,12 +104,15 @@ def _unpack_entry(entry: bytes):
     return private_key, public_key, rot_time
 
 
-def shm_crypto_set_keys(private_key: RSAPrivateKey, public_key: RSAPublicKey) -> None:
+def shm_crypto_set_keys(
+    private_key: RSAPrivateKey, public_key: RSAPublicKey, created_at: float
+) -> None:
     """
-    Сохраняет ключи и время ротации в shared memory с блокировкой
+    Сохраняет ключи и время создания в shared memory с блокировкой
 
     :param private_key: Приватный ключ RSA
     :param public_key: Публичный ключ RSA
+    :param created_at: Время создания ключей (timestamp).
     :return: None
     :raises TimeoutError: При невозможности захватить блокировку в течение timeout
     """
@@ -120,7 +122,7 @@ def shm_crypto_set_keys(private_key: RSAPrivateKey, public_key: RSAPublicKey) ->
 
     try:
         with LOCK:
-            packed = _pack_entry(private_key, public_key, time.time())
+            packed = _pack_entry(private_key, public_key, created_at)
             shm.buf[:ENTRY_SIZE] = packed
     except Timeout:
         logger.error("Timeout acquiring lock for writing to shared memory")

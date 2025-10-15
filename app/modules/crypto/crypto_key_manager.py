@@ -4,12 +4,12 @@ from typing import Any, Dict
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 
 from config.constants import CRYPTO_RSA_CONFIG, LOG_CONFIG
+from modules.crypto.crypto_storage import load_keys_from_disk, save_keys_to_disk
 from shared_memory.shm_crypto import (
     shm_crypto_get_last_rotation,
-    shm_crypto_get_private_key,
-    shm_crypto_get_public_key,
     shm_crypto_set_keys,
 )
 
@@ -76,38 +76,52 @@ def get_mgf1_algorithm(cfg: Dict[str, str]) -> Any:
 
 def refresh_keys(force: bool = False) -> None:
     """
-    Выполняет проверку необходимости ротации ключей RSA и, в случае необходимости, генерирует новую пару
+    Проверяет и при необходимости обновляет пару RSA-ключей.
 
-    :param force: Принудительно ротация ключей при True
-    :return: None
+    Логика работы:
+    1. Проверяет ключи в shared memory. Если они свежие, ничего не делает.
+    2. Если в shared memory ключей нет, пытается загрузить их с диска.
+    3. Если на диске есть свежие ключи, загружает их в shared memory.
+    4. Если ключи требуют ротации (по времени или принудительно),
+       генерирует новую пару, сохраняет на диск и в shared memory.
+
+    :param force: Принудительно сгенерировать новую пару ключей.
     """
-    private_key = shm_crypto_get_private_key()
-    public_key = shm_crypto_get_public_key()
-    last_rotation = shm_crypto_get_last_rotation()
-    rotation_needed = False
-    rotation_reason = ""
-
-    if force:
-        rotation_needed = True
-        rotation_reason = "Forced keypair generation"
-    elif not private_key or not public_key or not last_rotation:
-        rotation_needed = True
-        rotation_reason = "Initial keypair generation"
-    elif (time.time() - last_rotation) > CRYPTO_RSA_CONFIG["key_rotation_period"]:
-        rotation_needed = True
-        rotation_reason = "Keypair rotated by time limit"
-
-    if not rotation_needed:
+    # 1. Быстрая проверка в shared memory
+    last_rotation_shm = shm_crypto_get_last_rotation()
+    if (
+        not force
+        and last_rotation_shm is not None
+        and (time.time() - last_rotation_shm)
+        <= CRYPTO_RSA_CONFIG["key_rotation_period"]
+    ):
         return
 
-    logger.info(f"Generating RSA keypair: {rotation_reason}")
+    # 2. Если SHM пуста или устарела, пытаемся загрузить с диска
+    if not force:
+        disk_keys = load_keys_from_disk()
+        if disk_keys:
+            private_key, public_key, created_at = disk_keys
+            if (time.time() - created_at) <= CRYPTO_RSA_CONFIG["key_rotation_period"]:
+                if last_rotation_shm != created_at:
+                    logger.info("Loading RSA keys from disk into shared memory.")
+                    shm_crypto_set_keys(private_key, public_key, created_at)
+                return
+
+    # 3. Если мы здесь, нужна генерация новых ключей
+    rotation_reason = "Forced" if force else "Initial generation or rotation required"
+    logger.info(f"Generating new RSA key pair: {rotation_reason}")
     try:
         private_key = rsa.generate_private_key(
             public_exponent=CRYPTO_RSA_CONFIG["public_exponent"],
             key_size=CRYPTO_RSA_CONFIG["key_size"],
         )
-        public_key = private_key.public_key()
-        shm_crypto_set_keys(private_key, public_key)
+        public_key: RSAPublicKey = private_key.public_key()
+
+        # 4. Сохраняем на диск, затем в shared memory
+        saved_at = save_keys_to_disk(private_key, public_key)
+        shm_crypto_set_keys(private_key, public_key, saved_at)
+
     except Exception as e:
-        logger.critical(f"Failed to generate RSA keypair: {type(e).__name__}: {e}")
-        raise Exception("Internal crypto error")
+        logger.critical(f"Failed to generate and persist RSA key pair: {type(e).__name__}: {e}")
+        raise Exception("Internal crypto error") from e

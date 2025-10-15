@@ -1,17 +1,15 @@
-import json
 import logging
 
 from fastapi import APIRouter, HTTPException, Request, Response
-from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_400_BAD_REQUEST
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
 
 from api.crypto.crypto_schema import (
     EncryptedData,
-    EncryptedSymmetricKey,
     PrivateKeyRequest,
 )
 from config.constants import LOG_CONFIG
 from modules.auth.auth_jwt import validate_jwt
-from modules.crypto.crypto_operations import decrypt, encrypt_hybrid
+from modules.crypto.operations.hybrid import decrypt
 from modules.crypto.crypto_service import (
     get_public_key_jwk,
     generate_private_key,

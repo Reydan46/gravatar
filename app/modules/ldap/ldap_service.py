@@ -2,12 +2,10 @@ import logging
 from dataclasses import dataclass
 from typing import List, Dict, Optional
 
-import orjson
 from ldap3 import ALL, AUTO_BIND_NO_TLS, Connection, Server, SUBTREE
 from ldap3.core.exceptions import LDAPException
 
 from config.constants import LOG_CONFIG
-from modules.crypto.crypto_operations import decrypt_hybrid
 
 logger = logging.getLogger(LOG_CONFIG["main_logger_name"])
 
@@ -20,6 +18,7 @@ class LdapCheckResult:
     :param success: True, если соединение успешно.
     :param message: Сообщение о результате.
     """
+
     success: bool
     message: str
 
@@ -29,9 +28,7 @@ class LdapService:
     Сервис для взаимодействия с LDAP (Active Directory).
     """
 
-    def __init__(
-            self, server_url: str, username: str, password: str, search_base: str
-    ):
+    def __init__(self, server_url: str, username: str, password: str, search_base: str):
         """
         Инициализирует сервис с заданными учетными данными.
 
@@ -98,9 +95,9 @@ class LdapService:
             self.unbind()
 
     def search_users(
-            self,
-            search_filter: str = "(&(objectClass=user)(thumbnailPhoto=*))",
-            attributes: Optional[List[str]] = None,
+        self,
+        search_filter: str = "(&(objectClass=user)(thumbnailPhoto=*))",
+        attributes: Optional[List[str]] = None,
     ) -> list:
         """
         Выполняет поиск пользователей в LDAP с поддержкой постраничной загрузки.
@@ -145,7 +142,9 @@ class LdapService:
                     # Если контрол не найден, пагинация не поддерживается или завершена
                     break
 
-            sorted_entries = sorted(raw_users, key=lambda e: (e.sAMAccountName.value or "").lower())
+            sorted_entries = sorted(
+                raw_users, key=lambda e: (e.sAMAccountName.value or "").lower()
+            )
             logger.info(f"Found {len(sorted_entries)} users in LDAP.")
             return sorted_entries
         except LDAPException as e:
@@ -155,30 +154,27 @@ class LdapService:
             self.unbind()
 
 
-def check_connection_from_payload(payload: Dict) -> LdapCheckResult:
+def check_connection_from_credentials(credentials: Dict) -> LdapCheckResult:
     """
-    Выполняет полную процедуру проверки LDAP соединения из зашифрованного payload.
+    Выполняет проверку LDAP соединения, используя переданный словарь с учетными данными.
 
-    :param payload: Словарь с зашифрованными данными.
+    :param credentials: Словарь, содержащий учетные данные LDAP.
     :return: Объект LdapCheckResult с результатом.
     """
-    decrypted_str = decrypt_hybrid(payload)
-    ldap_data = orjson.loads(decrypted_str)
-
     required_keys = [
         "LDAP_SERVER",
         "LDAP_USERNAME",
         "LDAP_PASSWORD",
         "LDAP_SEARCH_BASE",
     ]
-    if not all(key in ldap_data for key in required_keys):
+    if not all(key in credentials for key in required_keys):
         raise ValueError("Отсутствуют обязательные учетные данные LDAP в запросе")
 
     service = LdapService(
-        server_url=ldap_data["LDAP_SERVER"],
-        username=ldap_data["LDAP_USERNAME"],
-        password=ldap_data["LDAP_PASSWORD"],
-        search_base=ldap_data["LDAP_SEARCH_BASE"],
+        server_url=credentials["LDAP_SERVER"],
+        username=credentials["LDAP_USERNAME"],
+        password=credentials["LDAP_PASSWORD"],
+        search_base=credentials["LDAP_SEARCH_BASE"],
     )
 
     is_successful = service.test_connection()

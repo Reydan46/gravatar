@@ -1,12 +1,10 @@
 import base64
 import datetime
 import re
-from typing import Optional
 
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 from cryptography.x509.oid import NameOID
 
 from config.constants import CRYPTO_RSA_CONFIG

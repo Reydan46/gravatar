@@ -96,6 +96,10 @@ LEVEL_TO_SHORT = {
 # Путь к файлу с секретом JWT (относительно internal_data_path)
 SECRET_FILE = "jwt_secret_key"
 
+# Пути к файлам криптографии (относительно internal_data_path)
+CRYPTO_MASTER_KEY_FILE = "crypto_master.key"
+ENCRYPTED_RSA_KEY_FILE = "rsa_keypair.enc"
+
 # Путь к файлу конфигурации (относительно internal_data_path)
 CONFIG_FILE = "settings.yml"
 

@@ -22,7 +22,7 @@ from modules.conf.conf_service import (
     update_config_service,
     validate_and_save_restored_config,
 )
-from modules.crypto.crypto_operations import decrypt_hybrid, encrypt_hybrid
+from modules.crypto.operations.hybrid import encrypt_hybrid, decrypt_hybrid
 from utils.request_logging import log_request_error
 
 logger = logging.getLogger(LOG_CONFIG["main_logger_name"])

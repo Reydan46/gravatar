@@ -11,7 +11,7 @@ from modules.auth.auth_basic import validate_credentials
 from modules.auth.auth_bruteforce import is_ip_locked, process_failed_attempt
 from modules.auth.auth_fingerprint import encrypt_data_with_fingerprint
 from modules.auth.auth_jwt import create_jwt_token, set_jwt_cookie
-from modules.crypto.crypto_operations import decrypt
+from modules.crypto.operations.hybrid import decrypt
 from shared_memory.shm_auth import add_auth_attempt_to_shm
 
 logger = logging.getLogger(LOG_CONFIG["main_logger_name"])

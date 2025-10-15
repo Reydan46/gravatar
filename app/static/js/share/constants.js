@@ -252,7 +252,6 @@ export const constants = {
 
     // ==== Cookie и служебные ключи ====
     COOKIE_AUTH_STATUS: 'auth_status',
-    COOKIE_BOOT_TIME: 'boot_time',
     LOCAL_STORAGE_PUB_KEY: 'pubKey',
     SAML_USER_PASSWORD_HASH_PLACEHOLDER: "saml_user",
 
