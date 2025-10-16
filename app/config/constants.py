@@ -156,6 +156,7 @@ URL_PAGE_HOME = "/logs"
 
 # Исключения для логирования запросов
 REQUEST_LOGGING_EXCLUDE_PATHS = [
+    "/",
     "/static",
     "/health",
     "/favicon",

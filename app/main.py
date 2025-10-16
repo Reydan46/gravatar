@@ -9,6 +9,7 @@ logger = setup_logging(LOG_CONFIG["main_logger_name"])
 from fastapi import FastAPI
 from starlette.staticfiles import StaticFiles
 
+from api.home.home_router import home_router
 from api.auth.auth_router import auth_router
 from api.avatar.avatar_router import avatar_router
 from api.conf.conf_router import conf_router
@@ -57,6 +58,7 @@ app.add_middleware(ProxyMiddleware)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+app.include_router(home_router)
 app.include_router(auth_router)
 app.include_router(avatar_router)
 app.include_router(conf_router)
