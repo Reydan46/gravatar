@@ -1,8 +1,8 @@
 /**
  * Функция для чтения значения cookie
-
- * :param name: имя куки
- * :return: строка
+ *
+ * @param {string} name - имя куки
+ * @return {string}
  */
 function getCookie(name) {
     const cookieValue = document.cookie

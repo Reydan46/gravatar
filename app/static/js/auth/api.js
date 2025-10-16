@@ -1,17 +1,17 @@
 import {getCookie} from './cookie.js'
-import {log} from '../share/logger.js';
-import {constants} from '../share/constants.js';
+import {log} from '../share/logger.js'
+import {constants} from '../share/constants.js'
 
 /**
  * Проверка авторизации по зашифрованным данным
  *
- * :param encryptedData: строка base64
- * :return: Promise<any>
+ * @param {string} encryptedData - строка base64
+ * @return {Promise<any>}
  */
 async function authByEncrypted(encryptedData) {
     log('AUTH', 'Проверка авторизации по зашифрованным данным')
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), constants.API_TIMEOUT_AUTH);
+    const timeoutId = setTimeout(() => controller.abort(), constants.API_TIMEOUT_AUTH)
     try {
         const response = await fetch(constants.ENDPOINT_LOGIN, {
             method: 'POST',
@@ -48,7 +48,7 @@ async function authByEncrypted(encryptedData) {
 /**
  * Проверить валидность токена (Cookie + fetch)
  *
- * :return: Promise<boolean>
+ * @return {Promise<boolean>}
  */
 async function checkToken() {
     const authStatus = getCookie(constants.COOKIE_AUTH_STATUS)
@@ -71,7 +71,7 @@ async function checkToken() {
 /**
  * Обновить токен (refresh)
  *
- * :return: Promise<{ result: 'updated' | 'not_updated' | 'error', response?: Response }>
+ * @return {Promise<{ result: 'updated' | 'not_updated' | 'error', response?: Response }>}
  */
 async function refreshToken() {
     const authStatus = getCookie(constants.COOKIE_AUTH_STATUS)
@@ -87,7 +87,7 @@ async function refreshToken() {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
-        });
+        })
         if (!response.ok) {
             return {result: 'error', response}
         }
@@ -108,7 +108,7 @@ async function refreshToken() {
 /**
  * Выход (logout)
  *
- * :return: Promise<boolean>
+ * @return {Promise<boolean>}
  */
 async function logout() {
     const authStatus = getCookie(constants.COOKIE_AUTH_STATUS)
