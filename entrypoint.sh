@@ -13,9 +13,13 @@ if [ -f /defaults.env ]; then
     done < /defaults.env
 fi
 
-# Если первый аргумент - "hash_password", то запускаем утилиту для хеширования
-if [ "$1" = "hash_password" ]; then
-    exec python /app/utils/password_utils.py
+# ==============================================================================
+# Проверяем, передан ли аргумент и существует ли для него скрипт в /scripts/commands
+# ==============================================================================
+if [ -n "$1" ] && [ -x "/scripts/commands/$1.sh" ]; then
+    echo "Executing command: $1"
+    # Используем exec, чтобы передать управление и код завершения
+    exec "/scripts/commands/$1.sh"
 fi
 
 # ==============================================================================
@@ -44,19 +48,18 @@ case "${TRUST_DOCKER_GATEWAY}" in
         ;;
 esac
 
-
 # ==============================================================================
-# Конфигурация Nginx
+# Выполнение подготовительных скриптов
 # ==============================================================================
-SSL_CONF_FOUND=
-if ls /etc/nginx/conf.d/*ssl*.conf 1>/dev/null 2>&1; then
-    SSL_CONF_FOUND=" ssl"
-    PROTOCOL="https"
-else
-    PROTOCOL="http"
+PRE_START_DIR="/scripts/pre-start"
+if [ -d "$PRE_START_DIR" ]; then
+    echo "Running pre-start scripts from $PRE_START_DIR..."
+    for f in $(find "$PRE_START_DIR" -type f -executable | sort); do
+        echo "Sourcing pre-start script: $f"
+        . "$f"
+    done
+    echo "Pre-start scripts finished."
 fi
-
-sed -i "s/NGINX_PORT/$NGINX_PORT$SSL_CONF_FOUND/g; s/APP_PORT/$APP_PORT/g" /etc/nginx/nginx.conf
 
 # ==============================================================================
 # Вывод итоговой конфигурации
@@ -83,7 +86,7 @@ echo "TRUSTED_PROXY_IPS:             ${TRUSTED_PROXY_IPS:-<empty>}"
 echo "PROXY_MIDDLEWARE_IGNORE_IPS:   ${PROXY_MIDDLEWARE_IGNORE_IPS:-<empty>}"
 echo "TRUST_DOCKER_GATEWAY:          ${TRUST_DOCKER_GATEWAY:-<empty>}"
 echo "----------------------------------------------------"
-echo "Starting supervisor..."
 
-exec env PYTHONWARNINGS="ignore:pkg_resources is deprecated,ignore:resource_tracker" \
-    /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
+echo "Starting supervisord..."
+export PYTHONWARNINGS="ignore:pkg_resources is deprecated,ignore:resource_tracker"
+exec "$@"

@@ -5,7 +5,7 @@ services:
     build:
       context: .
     ports:
-      - "${NGINX_PORT:-9888}:${NGINX_PORT:-9888}"
+      - "${NGINX_PORT:-9999}:${NGINX_PORT:-9999}"
     volumes:
       - "${DATA_PATH}:${INTERNAL_DATA_PATH:-/data}:rw"
     logging:

@@ -1,0 +1,26 @@
+#!/bin/sh
+set -e
+
+echo "Finalizing setup: checking permissions and cleaning up..."
+
+if [ -z "$APP_USER" ] || [ -z "$APP_GROUP" ]; then
+  echo "Warning: APP_USER or APP_GROUP is not set. Skipping."
+  exit 0
+fi
+
+if [ -d "$INTERNAL_DATA_PATH" ]; then
+  changes_data=$(chown -cR "${APP_USER}:${APP_GROUP}" "$INTERNAL_DATA_PATH" 2>/dev/null || true)
+
+  if [ -n "$changes_data" ]; then
+    echo "  - Corrected ownership for data directory ($INTERNAL_DATA_PATH)."
+  fi
+fi
+
+lock_files_to_delete=$(find /tmp -name "*.lock" -user root -print 2>/dev/null || true)
+
+if [ -n "$lock_files_to_delete" ]; then
+  echo "$lock_files_to_delete" | xargs rm -f
+  echo "  - Removed stale temporary lock files."
+fi
+
+echo "Setup finalization complete."
