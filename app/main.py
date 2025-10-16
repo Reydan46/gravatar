@@ -1,6 +1,6 @@
 import logging
 
-from config.constants import LOG_CONFIG
+from config.constants import LOG_CONFIG, SERVICE_NAME
 from config.settings import settings
 from utils.logger_setup import setup_logging
 
@@ -35,8 +35,8 @@ for uvicorn_logger_name in ["uvicorn", "uvicorn.access", "uvicorn.error"]:
         handler.addFilter(session_filter)
 
 app = FastAPI(
-    title="Gravatar API",
-    description="Прокси-сервис для работы с различными LLM API",
+    title=f"{SERVICE_NAME.capitalize()} API",
+    description="Gravatar-совместимый сервис для генерации и хранения аватаров пользователей",
     version="2.0.0",
     lifespan=lifespan,
 )

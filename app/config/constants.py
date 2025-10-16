@@ -1,7 +1,10 @@
+# Имя сервиса
+SERVICE_NAME = "gravatar"
+
 # Настройки логирования
 LOG_CONFIG = {
     "level": "DEBUG",
-    "main_logger_name": "gravatar",
+    "main_logger_name": SERVICE_NAME,
     "in_console_enabled": True,
     "in_console_format": "[ %(asctime)s.%(msecs)03d %(module)-20s - %(funcName)25s() ][%(process)2d][%(session_id)4s][%(levelname)s] %(message)s",
     "in_console_format_datetime": "%d.%m.%Y %H:%M:%S",
