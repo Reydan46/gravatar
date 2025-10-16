@@ -13,9 +13,7 @@ from config.constants import (
     AUTH_STATUS_COOKIE_NAME,
     LOG_CONFIG,
     TOKEN_RENEW_THRESHOLD_SECONDS,
-    BOOT_TIME_COOKIE_NAME,
 )
-
 from config.settings import settings
 from modules.auth.auth_base import AuthResult
 from modules.auth.auth_fingerprint import (
@@ -23,7 +21,6 @@ from modules.auth.auth_fingerprint import (
     decrypt_data_with_fingerprint,
     encrypt_data_with_fingerprint,
 )
-from shared_memory.shm_boot_time import get_boot_time
 
 logger = logging.getLogger(LOG_CONFIG["main_logger_name"])
 
@@ -34,8 +31,6 @@ def create_jwt_token(
     expires_delta: int = TOKEN_MAX_AGE,
     old_token: Optional[str] = None,
     enc_data_fgp: Optional[str] = None,
-    name_id: Optional[str] = None,
-    session_index: Optional[str] = None,
 ) -> str:
     """
     Создает или обновляет JWT токен для пользователя. Сохраняет дату создания (iat) из оригинального токена.
@@ -45,24 +40,13 @@ def create_jwt_token(
     :param expires_delta: Время жизни токена в секундах
     :param old_token: Оригинальный токен
     :param enc_data_fgp: Шифрованные данные отпечатком браузера
-    :param name_id: NameID из SAML ответа
-    :param session_index: SessionIndex из SAML ответа
     :return: JWT токен
     """
     if old_token:
-        try:
-            old_payload = jwt.decode(
-                old_token,
-                settings.jwt_secret_key,
-                algorithms=[settings.jwt_algorithm],
-                options={"verify_exp": False},
-            )
-            iat = old_payload.get("iat", time.time())
-            # Сохраняем SAML-атрибуты при обновлении токена
-            name_id = name_id or old_payload.get("nameid")
-            session_index = session_index or old_payload.get("sid")
-        except jwt.PyJWTError:
-            iat = time.time()
+        old_payload = jwt.decode(
+            old_token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm]
+        )
+        iat = old_payload.get("iat", "")
     else:
         iat = time.time()
 
@@ -73,19 +57,12 @@ def create_jwt_token(
         "fgp": enc_data_fgp,
     }
 
-    if name_id and session_index:
-        payload["nameid"] = name_id
-        payload["sid"] = session_index
-
     token = jwt.encode(
         payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm
     )
 
     if old_token is None:
-        log_msg = f"[{client_ip}][{username}] Created new JWT token"
-        if session_index:
-            log_msg += f" with SAML SessionIndex: {session_index}"
-        logger.info(log_msg)
+        logger.info(f"[{client_ip}][{username}] Created new JWT token")
     else:
         logger.info(f"[{client_ip}][{username}] Updated JWT token")
 
@@ -220,9 +197,6 @@ async def validate_jwt(
     Проверяет JWT токен в запросе, валидирует cookie времени запуска сервера (boot_time), при необходимости обновляет cookie,
     а также автоматически обновляет токен при приближении срока действия (если передан response и auto_refresh=True).
 
-    Если cookie BOOT_TIME_COOKIE_NAME отсутствует или отличается от текущего boot_time сервера (полученного из shared memory),
-    на клиент будет установлена актуальная cookie (response.set_cookie).
-
     При необходимости (автоматическое продление токена по времени жизни) обновляет JWT токен в cookie.
 
     :param request: Объект запроса
@@ -261,27 +235,6 @@ async def validate_jwt(
                     "code": "invalid_token",
                 }
             },
-        )
-
-    # Проверка и обновление boot_time cookie
-    current_boot_time = get_boot_time()
-    client_boot_cookie = request.cookies.get(BOOT_TIME_COOKIE_NAME)
-    try:
-        client_boot_cookie_float = (
-            float(client_boot_cookie) if client_boot_cookie is not None else None
-        )
-    except (TypeError, ValueError):
-        client_boot_cookie_float = None
-    if response is not None and (
-        client_boot_cookie_float is None
-        or current_boot_time != client_boot_cookie_float
-    ):
-        response.set_cookie(
-            key=BOOT_TIME_COOKIE_NAME,
-            value=str(current_boot_time),
-            httponly=False,  # Доступна для JavaScript
-            secure=True,
-            samesite="strict",
         )
 
     # Автоматическое обновление токена, если предоставлен объект ответа
