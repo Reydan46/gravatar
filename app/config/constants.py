@@ -146,8 +146,10 @@ FINGERPRINT_HEADERS = [
 ]
 
 # Константы для cookies
-ACCESS_TOKEN_COOKIE_NAME = "access_token"  # Имя куки для токена доступа
-AUTH_STATUS_COOKIE_NAME = "auth_status"  # Имя куки для статуса аутентификации
+ACCESS_TOKEN_COOKIE_NAME = f"{SERVICE_NAME}_access_token"  # Имя куки для токена доступа
+AUTH_STATUS_COOKIE_NAME = (
+    f"{SERVICE_NAME}_auth_status"  # Имя куки для статуса аутентификации
+)
 
 # Домашняя страница
 URL_PAGE_HOME = "/logs"

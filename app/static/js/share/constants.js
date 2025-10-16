@@ -250,9 +250,15 @@ export const constants = {
     PROMPT_LABEL_CANCEL: 'Отмена',
 
 
-    // ==== Cookie и служебные ключи ====
-    COOKIE_AUTH_STATUS: 'auth_status',
-    LOCAL_STORAGE_PUB_KEY: 'pubKey',
+    // ==== Cookie ====
+    get COOKIE_AUTH_STATUS() {
+        return `${this.SERVICE_NAME}_auth_status`;
+    },
+    get LOCAL_STORAGE_PUB_KEY() {
+        return `${this.SERVICE_NAME}_pubKey`;
+    },
+
+    // ==== Cлужебные ключи ====
     SAML_USER_PASSWORD_HASH_PLACEHOLDER: "saml_user",
 
 
