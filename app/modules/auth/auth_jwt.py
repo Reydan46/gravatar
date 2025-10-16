@@ -31,6 +31,8 @@ def create_jwt_token(
     expires_delta: int = TOKEN_MAX_AGE,
     old_token: Optional[str] = None,
     enc_data_fgp: Optional[str] = None,
+    name_id: Optional[str] = None,
+    session_index: Optional[str] = None,
 ) -> str:
     """
     Создает или обновляет JWT токен для пользователя. Сохраняет дату создания (iat) из оригинального токена.
@@ -40,13 +42,24 @@ def create_jwt_token(
     :param expires_delta: Время жизни токена в секундах
     :param old_token: Оригинальный токен
     :param enc_data_fgp: Шифрованные данные отпечатком браузера
+    :param name_id: NameID из SAML ответа
+    :param session_index: SessionIndex из SAML ответа
     :return: JWT токен
     """
     if old_token:
-        old_payload = jwt.decode(
-            old_token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm]
-        )
-        iat = old_payload.get("iat", "")
+        try:
+            old_payload = jwt.decode(
+                old_token,
+                settings.jwt_secret_key,
+                algorithms=[settings.jwt_algorithm],
+                options={"verify_exp": False},
+            )
+            iat = old_payload.get("iat", time.time())
+            # Сохраняем SAML-атрибуты при обновлении токена
+            name_id = name_id or old_payload.get("nameid")
+            session_index = session_index or old_payload.get("sid")
+        except jwt.PyJWTError:
+            iat = time.time()
     else:
         iat = time.time()
 
@@ -57,12 +70,19 @@ def create_jwt_token(
         "fgp": enc_data_fgp,
     }
 
+    if name_id and session_index:
+        payload["nameid"] = name_id
+        payload["sid"] = session_index
+
     token = jwt.encode(
         payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm
     )
 
     if old_token is None:
-        logger.info(f"[{client_ip}][{username}] Created new JWT token")
+        log_msg = f"[{client_ip}][{username}] Created new JWT token"
+        if session_index:
+            log_msg += f" with SAML SessionIndex: {session_index}"
+        logger.info(log_msg)
     else:
         logger.info(f"[{client_ip}][{username}] Updated JWT token")
 
