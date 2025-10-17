@@ -1,3 +1,4 @@
+import fnmatch
 import logging
 import time
 import uuid
@@ -63,7 +64,7 @@ class RequestLoggingMiddleware:
         :param exclude_paths: Список путей для исключения из логирования
         """
         self.app = app
-        self.exclude_paths = exclude_paths or REQUEST_LOGGING_EXCLUDE_PATHS
+        self.exclude_masks = exclude_paths or REQUEST_LOGGING_EXCLUDE_PATHS
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         """
@@ -88,11 +89,11 @@ class RequestLoggingMiddleware:
             try:
                 referer_path = urlparse(referer.decode("utf-8")).path
                 is_from_admin = any(
-                    referer_path.startswith(p) for p in ADMIN_REFERER_PATHS
+                    fnmatch.fnmatch(referer_path, p) for p in ADMIN_REFERER_PATHS
                 )
                 if is_from_admin:
                     is_noisy_target = any(
-                        path.startswith(p) for p in ADMIN_REFERER_EXCLUDE_TARGETS
+                        fnmatch.fnmatch(path, p) for p in ADMIN_REFERER_EXCLUDE_TARGETS
                     )
                     if is_noisy_target:
                         suppress_app_logging_var.set(True)
@@ -103,9 +104,11 @@ class RequestLoggingMiddleware:
                     exc_info=True,
                 )
 
-        # Проверка по списку безусловных исключений
-        if any(path.startswith(excluded) for excluded in self.exclude_paths):
-            should_log_request = False
+        # Проверка по списку масок с помощью fnmatch
+        for mask in self.exclude_masks:
+            if fnmatch.fnmatch(path, mask):
+                should_log_request = False
+                break
 
         session_id = uuid.uuid4().hex[:4]
         session_id_var.set(session_id)

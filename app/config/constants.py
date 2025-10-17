@@ -155,28 +155,42 @@ AUTH_STATUS_COOKIE_NAME = (
 URL_PAGE_HOME = "/logs"
 
 # Исключения для логирования запросов
+# Используется стандартная система масок (модуль fnmatch), где:
+# - '*' соответствует любой последовательности символов
+# - '?' соответствует любому одиночному символу
+# - '[seq]' соответствует любому символу в seq
+# - '[!seq]' соответствует любому символу не в seq
+# Примеры:
+# - "/"            - только главная страница
+# - "/static/*"    - все пути, начинающиеся с /static/
+# - "*/styles.css" - все пути, заканчивающиеся на /styles.css
+# - "*/assets/*"   - все пути, содержащие /assets/
+# - "/api/v?/users" - совпадет с /api/v1/users и /api/v2/users
 REQUEST_LOGGING_EXCLUDE_PATHS = [
     "/",
-    "/static",
-    "/health",
-    "/favicon",
-    "/auth",
-    "/crypto",
-    "/logs",
-    "/conf",
-    "/gallery",
-    "/.well-known",
+    "/static*",
+    "/health*",
+    "/favicon*",
+    "/auth*",
+    "/crypto*",
+    "/logs*",
+    "/conf*",
+    "/gallery*",
+    "/.well-known*",
 ]
 
-# Список путей административных страниц, с которых могут идти "шумные" запросы
+# Список масок путей административных страниц, с которых могут идти "шумные" запросы
+# Используется fnmatch
 ADMIN_REFERER_PATHS = [
-    "/auth",
-    "/conf",
-    "/gallery",
+    "/auth*",
+    "/conf*",
+    "/gallery*",
 ]
-# Список "шумных" целевых путей, логирование которых нужно отключать,
+
+# Список масок "шумных" целевых путей, логирование которых нужно отключать,
 # если запрос пришел с одной из страниц в ADMIN_REFERER_PATHS
-ADMIN_REFERER_EXCLUDE_TARGETS = ["/avatar", "/gallery", "/saml"]
+# Используется fnmatch
+ADMIN_REFERER_EXCLUDE_TARGETS = ["/avatar*", "/gallery*", "/saml*"]
 
 # Интервал (сек) для подавления лог-спама от недоверенных IP в ProxyMiddleware. 0=выкл.
 PROXY_MIDDLEWARE_LOG_THROTTLE_SECONDS = 60
