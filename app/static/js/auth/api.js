@@ -118,7 +118,7 @@ async function logout() {
     log('AUTH', 'Запрос выхода из системы')
     try {
         await fetch(constants.ENDPOINT_LOGOUT, {
-            method: 'POST',
+            method: 'GET',
             credentials: 'include'
         })
         log('AUTH', 'Успешный выход, cookie очищена')
