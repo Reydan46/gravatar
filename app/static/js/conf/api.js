@@ -101,14 +101,14 @@ function syncAvatars(passphrase, onMessage, onComplete, onError) {
 
 
 /**
- * Загружает текущую конфигурацию
- *
- * :return: объект конфигурации
+ * Загружает текущую конфигурацию.
+ * @param {boolean} forceKeyRefresh - Флаг для принудительного обновления ключа.
+ * @returns {Promise<object>} - Объект конфигурации.
  */
-async function fetchConfig() {
+async function fetchConfig(forceKeyRefresh = false) {
     log('CONF', 'Загрузка текущей конфигурации');
     const {aesKey, aesb64Key} = await generateAesKeyAndIv();
-    const enc_key = await encryptString(aesb64Key);
+    const enc_key = await encryptString(aesb64Key, forceKeyRefresh);
 
     const res = await fetch(constants.ENDPOINT_CONF_DATA, {
         method: 'POST',
@@ -116,6 +116,11 @@ async function fetchConfig() {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({enc_key})
     });
+
+    if (res.status === 409 && !forceKeyRefresh) {
+        log('CONF', 'Сервер вернул 409 Conflict. Повторный запрос с обновлением ключа.', 'warn');
+        return fetchConfig(true);
+    }
 
     if (!res.ok) {
         let detail = null;
@@ -143,6 +148,7 @@ async function fetchConfig() {
         throw err;
     }
 }
+
 
 /**
  * Сохраняет изменения конфигурации
@@ -172,12 +178,13 @@ async function updateConfig(data) {
 
 /**
  * Запрашивает и скачивает файл резервной копии конфигурации
+ * @param {boolean} forceKeyRefresh - Флаг для принудительного обновления ключа.
  */
-async function downloadBackup() {
+async function downloadBackup(forceKeyRefresh = false) {
     log('CONF', 'Запрос на скачивание резервной копии');
     try {
         const {aesKey, aesb64Key} = await generateAesKeyAndIv();
-        const enc_key = await encryptString(aesb64Key);
+        const enc_key = await encryptString(aesb64Key, forceKeyRefresh);
 
         const res = await fetch(constants.ENDPOINT_CONF_BACKUP, {
             method: 'POST',
@@ -185,6 +192,11 @@ async function downloadBackup() {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({enc_key})
         });
+
+        if (res.status === 409 && !forceKeyRefresh) {
+            log('CONF', 'Сервер вернул 409 Conflict при скачивании бэкапа. Повторяю с обновлением ключа.', 'warn');
+            return downloadBackup(true);
+        }
 
         if (!res.ok) {
             let detail = 'Unknown backup error';

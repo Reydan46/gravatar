@@ -6,6 +6,7 @@ from starlette.responses import FileResponse, RedirectResponse
 from starlette.status import (
     HTTP_307_TEMPORARY_REDIRECT,
     HTTP_500_INTERNAL_SERVER_ERROR,
+    HTTP_409_CONFLICT,
 )
 
 from api.crypto.crypto_schema import HybridEncryptedData
@@ -68,7 +69,17 @@ async def get_gallery_data(
         username, _ = await validate_jwt(request, response)
         require_permission(username, Permissions.GALLERY)
 
-        decrypted_str = decrypt_hybrid(payload.model_dump())
+        try:
+            decrypted_str = decrypt_hybrid(payload.model_dump())
+        except ValueError:
+            logger.warning(
+                f"Decryption failed for user '{username}'. Keys may be outdated. Sending 409 Conflict."
+            )
+            raise HTTPException(
+                status_code=HTTP_409_CONFLICT,
+                detail="Decryption failed. Client keys may be outdated.",
+            )
+
         params = orjson.loads(decrypted_str)
 
         page = params.get("page", 1)

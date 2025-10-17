@@ -10,6 +10,7 @@ from starlette.status import (
     HTTP_500_INTERNAL_SERVER_ERROR,
     HTTP_307_TEMPORARY_REDIRECT,
     HTTP_400_BAD_REQUEST,
+    HTTP_409_CONFLICT,
 )
 
 from api.crypto.crypto_schema import HybridEncryptedData, EncryptedSymmetricKey
@@ -103,7 +104,16 @@ async def update_config(
     try:
         username, _ = await validate_jwt(request, response)
         require_permission(username, Permissions.SETTINGS)
-        update_data_str = decrypt_hybrid(payload.model_dump(exclude_unset=True))
+        try:
+            update_data_str = decrypt_hybrid(payload.model_dump(exclude_unset=True))
+        except ValueError:
+            logger.warning(
+                f"Decryption failed for user '{username}'. Keys may be outdated. Sending 409 Conflict."
+            )
+            raise HTTPException(
+                status_code=HTTP_409_CONFLICT,
+                detail="Decryption failed. Client keys may be outdated.",
+            )
         update_data = json.loads(update_data_str)
         logger.info(f"[{username}] Request to update config")
         return await update_config_service(update_data)
@@ -162,7 +172,16 @@ async def upload_restore(
         require_permission(username, Permissions.SETTINGS)
         logger.info(f"[{username}] Request to restore config from file")
 
-        decrypted_contents = decrypt_hybrid(payload.model_dump(exclude_unset=True))
+        try:
+            decrypted_contents = decrypt_hybrid(payload.model_dump(exclude_unset=True))
+        except ValueError:
+            logger.warning(
+                f"Decryption failed for user '{username}'. Keys may be outdated. Sending 409 Conflict."
+            )
+            raise HTTPException(
+                status_code=HTTP_409_CONFLICT,
+                detail="Decryption failed. Client keys may be outdated.",
+            )
         return validate_and_save_restored_config(decrypted_contents)
     except HTTPException:
         raise

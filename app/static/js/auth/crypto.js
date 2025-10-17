@@ -1,6 +1,8 @@
 import {getFormattedTime, log} from '../share/logger.js'
 import {constants} from '../share/constants.js'
 
+let decryptionErrorOccurred = false;
+
 /**
  * Проверка поддержки WebCrypto API
  */
@@ -105,6 +107,7 @@ async function fetchAndImportPublicKey(forceReload = false) {
         throw new Error('Некорректный JWK: отсутствует kty/n/e/alg/lr/krp')
     }
     localStorage.setItem(constants.LOCAL_STORAGE_PUB_KEY, JSON.stringify(publicKeyJWK))
+    decryptionErrorOccurred = false; // Сбрасываем флаг ошибки после успешной загрузки ключа
     log('AUTH', `Публичный ключ сохранён (last_rotation: ${getFormattedTime(publicKeyJWK.lr * 1000)}, valid_until: ${getFormattedTime((publicKeyJWK.lr + publicKeyJWK.krp) * 1000)})`)
     return await importPublicKey(publicKeyJWK)
 }
@@ -152,7 +155,8 @@ async function importPublicKey(publicKeyJWK) {
  * @return {Promise<string>} Зашифрованная строка (base64)
  */
 async function encryptString(plainText, forceKeyReload = false) {
-    const publicCryptoKey = await fetchAndImportPublicKey(forceKeyReload)
+    const shouldForceReload = forceKeyReload || decryptionErrorOccurred;
+    const publicCryptoKey = await fetchAndImportPublicKey(shouldForceReload);
     const encryptedBuffer = await window.crypto.subtle.encrypt(
         {name: publicCryptoKey.algorithm.name},
         publicCryptoKey,
@@ -206,7 +210,8 @@ async function encryptHybrid(plainText, forceKeyReload = false, preGeneratedKey 
         data
     )
 
-    const enc_key = await encryptString(localAesB64Key, forceKeyReload)
+    const shouldForceReload = forceKeyReload || decryptionErrorOccurred;
+    const enc_key = await encryptString(localAesB64Key, shouldForceReload)
 
     return {
         enc_sym_data: arrayBufferToBase64(encryptedSymData),
@@ -226,12 +231,19 @@ async function encryptHybrid(plainText, forceKeyReload = false, preGeneratedKey 
 async function decryptHybridLocal(symmetricKey, enc_sym_data, iv) {
     const encryptedDataBuf = Uint8Array.from(atob(enc_sym_data), c => c.charCodeAt(0))
     const ivBuf = Uint8Array.from(atob(iv), c => c.charCodeAt(0))
-    const decrypted = await window.crypto.subtle.decrypt(
-        {name: "AES-CBC", iv: ivBuf},
-        symmetricKey,
-        encryptedDataBuf
-    )
-    return new TextDecoder().decode(new Uint8Array(decrypted))
+    try {
+        const decrypted = await window.crypto.subtle.decrypt(
+            {name: "AES-CBC", iv: ivBuf},
+            symmetricKey,
+            encryptedDataBuf
+        );
+        decryptionErrorOccurred = false;
+        return new TextDecoder().decode(new Uint8Array(decrypted));
+    } catch (e) {
+        decryptionErrorOccurred = true;
+        log('AUTH_CRYPTO', 'Ошибка локальной расшифровки, устанавливаем флаг decryptionErrorOccurred', e, 'error');
+        throw e;
+    }
 }
 
 export {encryptString, testCryptoSupport, encryptHybrid, decryptHybridLocal, generateAesKeyAndIv}

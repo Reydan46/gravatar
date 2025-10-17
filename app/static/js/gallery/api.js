@@ -10,15 +10,16 @@ import {
 /**
  * Получает данные для галереи с сервера с использованием гибридного шифрования.
  * @param {object} params - Параметры запроса (page, pageSize, filters, sortBy, sortDir).
+ * @param {boolean} forceKeyRefresh - Флаг, указывающий на необходимость принудительно обновить ключ.
  * @returns {Promise<object>} - Расшифрованные данные от сервера.
  */
-async function fetchGalleryData({page, pageSize, filters, sortBy, sortDir}) {
+async function fetchGalleryData({page, pageSize, filters, sortBy, sortDir}, forceKeyRefresh = false) {
     log('GALLERY_API', `Запрос данных: стр ${page}, размер ${pageSize}, сорт ${sortBy} ${sortDir}, фильтры`, filters);
     try {
         const {aesKey, aesb64Key} = await generateAesKeyAndIv();
         const requestData = {page, pageSize, filters, sortBy, sortDir};
 
-        const payload = await encryptHybrid(JSON.stringify(requestData), false, {aesKey, aesb64Key});
+        const payload = await encryptHybrid(JSON.stringify(requestData), forceKeyRefresh, {aesKey, aesb64Key});
 
         const response = await fetch(constants.ENDPOINT_GALLERY_DATA, {
             method: 'POST',
@@ -26,6 +27,11 @@ async function fetchGalleryData({page, pageSize, filters, sortBy, sortDir}) {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload)
         });
+
+        if (response.status === 409 && !forceKeyRefresh) {
+            log('GALLERY_API', 'Сервер вернул 409 Conflict. Повторный запрос с принудительным обновлением ключа.', 'warn');
+            return fetchGalleryData({page, pageSize, filters, sortBy, sortDir}, true);
+        }
 
         if (!response.ok) {
             let errorData;
@@ -38,12 +44,7 @@ async function fetchGalleryData({page, pageSize, filters, sortBy, sortDir}) {
         }
 
         const encryptedResponse = await response.json();
-
-        const decrypted_content = await decryptHybridLocal(
-            aesKey,
-            encryptedResponse.enc_sym_data,
-            encryptedResponse.iv
-        );
+        const decrypted_content = await decryptHybridLocal(aesKey, encryptedResponse.enc_sym_data, encryptedResponse.iv);
 
         log('GALLERY_API', 'Данные успешно получены и расшифрованы');
         return JSON.parse(decrypted_content);
@@ -56,12 +57,13 @@ async function fetchGalleryData({page, pageSize, filters, sortBy, sortDir}) {
 
 /**
  * Запрашивает passphrase с бэкенда.
+ * @param {boolean} forceKeyRefresh - Флаг для принудительного обновления ключа.
  * @returns {Promise<string|null>} - Passphrase или null в случае ошибки.
  */
-async function fetchPassphrase() {
+async function fetchPassphrase(forceKeyRefresh = false) {
     try {
         const {aesKey, aesb64Key} = await generateAesKeyAndIv();
-        const enc_key = await encryptString(aesb64Key);
+        const enc_key = await encryptString(aesb64Key, forceKeyRefresh);
 
         const res = await fetch(constants.ENDPOINT_CONF_DATA, {
             method: 'POST',
@@ -69,6 +71,11 @@ async function fetchPassphrase() {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({enc_key})
         });
+
+        if (res.status === 409 && !forceKeyRefresh) {
+            log('GALLERY_API', 'Сервер вернул 409 Conflict при запросе passphrase. Повторяю с обновлением ключа.', 'warn');
+            return fetchPassphrase(true);
+        }
 
         if (!res.ok) {
             throw new Error(`Ошибка получения passphrase: ${res.status}`);

@@ -80,20 +80,22 @@ def refresh_keys(force: bool = False) -> None:
 
     Логика работы:
     1. Проверяет ключи в shared memory. Если они свежие, ничего не делает.
-    2. Если в shared memory ключей нет, пытается загрузить их с диска.
-    3. Если на диске есть свежие ключи, загружает их в shared memory.
-    4. Если ключи требуют ротации (по времени или принудительно),
-       генерирует новую пару, сохраняет на диск и в shared memory.
+    2. Если в shared memory ключей нет или они устарели, пытается загрузить их с диска.
+    3. Если на диске есть свежие ключи, загружает их в shared memory и завершает работу.
+    4. Если ключи на диске также устарели (или их нет), генерирует новую пару,
+       сохраняет на диск и в shared memory.
 
     :param force: Принудительно сгенерировать новую пару ключей.
     """
+    now = time.time()
+    rotation_period = CRYPTO_RSA_CONFIG["key_rotation_period"]
+
     # 1. Быстрая проверка в shared memory
     last_rotation_shm = shm_crypto_get_last_rotation()
     if (
         not force
         and last_rotation_shm is not None
-        and (time.time() - last_rotation_shm)
-        <= CRYPTO_RSA_CONFIG["key_rotation_period"]
+        and (now - last_rotation_shm) <= rotation_period
     ):
         return
 
@@ -102,15 +104,16 @@ def refresh_keys(force: bool = False) -> None:
         disk_keys = load_keys_from_disk()
         if disk_keys:
             private_key, public_key, created_at = disk_keys
-            if (time.time() - created_at) <= CRYPTO_RSA_CONFIG["key_rotation_period"]:
+            # 3. Если ключи на диске свежие, используем их
+            if (now - created_at) <= rotation_period:
                 if last_rotation_shm != created_at:
-                    logger.info("Loading RSA keys from disk into shared memory.")
+                    logger.info("Loading valid RSA keys from disk into shared memory.")
                     shm_crypto_set_keys(private_key, public_key, created_at)
                 return
 
-    # 3. Если мы здесь, нужна генерация новых ключей
-    rotation_reason = "Forced" if force else "Initial generation or rotation required"
-    logger.info(f"Generating new RSA key pair: {rotation_reason}")
+    # 4. Если мы здесь, нужна генерация новых ключей
+    reason = "Forced" if force else "Initial generation or rotation required"
+    logger.info(f"Generating new RSA key pair: {reason}")
     try:
         private_key = rsa.generate_private_key(
             public_exponent=CRYPTO_RSA_CONFIG["public_exponent"],
@@ -118,10 +121,11 @@ def refresh_keys(force: bool = False) -> None:
         )
         public_key: RSAPublicKey = private_key.public_key()
 
-        # 4. Сохраняем на диск, затем в shared memory
         saved_at = save_keys_to_disk(private_key, public_key)
         shm_crypto_set_keys(private_key, public_key, saved_at)
 
     except Exception as e:
-        logger.critical(f"Failed to generate and persist RSA key pair: {type(e).__name__}: {e}")
+        logger.critical(
+            f"Failed to generate and persist RSA key pair: {type(e).__name__}: {e}"
+        )
         raise Exception("Internal crypto error") from e
