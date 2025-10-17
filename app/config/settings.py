@@ -130,6 +130,9 @@ class Settings:
         self._show_debug_logs: str = os.getenv(
             "SHOW_DEBUG_LOGS", self.DEFAULT_SETTINGS["show_debug_logs"]
         )
+        self._enable_root_redirect: str = os.getenv(
+            "ENABLE_ROOT_REDIRECT", self.DEFAULT_SETTINGS["enable_root_redirect"]
+        )
         self._jwt_secret_key: str = (
             os.getenv("JWT_SECRET_KEY") or self._get_or_create_secret_key()
         )
@@ -392,6 +395,17 @@ class Settings:
             return self._show_debug_logs
 
         return str(self._show_debug_logs).lower() in ("true", "t", "yes", "y", "1")
+
+    @property
+    def enable_root_redirect(self) -> bool:
+        """
+        Флаг, включающий перенаправление с корневого URL на домашнюю страницу.
+
+        :return: Булево значение.
+        """
+        if isinstance(self._enable_root_redirect, bool):
+            return self._enable_root_redirect
+        return str(self._enable_root_redirect).lower() in ("true", "t", "yes", "y", "1")
 
     @property
     def jwt_secret_key(self) -> str:

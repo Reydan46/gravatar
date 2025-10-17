@@ -1,20 +1,24 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException
 from starlette.responses import RedirectResponse
+from starlette.status import HTTP_404_NOT_FOUND
 
 from config.constants import URL_PAGE_HOME
+from config.settings import settings
 
-home_router: APIRouter = APIRouter()
+home_router = APIRouter()
 
 
-@home_router.get("/", include_in_schema=False)
-async def redirect_to_auth(request: Request) -> RedirectResponse:
+@home_router.get("/")
+async def root():
     """
-    Перенаправляет пользователя с корневого URL на страницу аутентификации.
+    Корневой маршрут приложения.
+    - Если `ENABLE_ROOT_REDIRECT` установлен в `True` (по умолчанию),
+      перенаправляет на домашнюю страницу.
+    - В противном случае, возвращает 404 Not Found.
 
-    Этот обработчик является точкой входа в приложение и направляет
-    пользователей на страницу входа.
-
-    :param request: Объект HTTP-запроса.
-    :return: Ответ с перенаправлением на страницу /auth.
+    :return: RedirectResponse или вызывает HTTPException.
     """
-    return RedirectResponse(url=URL_PAGE_HOME)
+    if settings.enable_root_redirect:
+        return RedirectResponse(url=URL_PAGE_HOME)
+    else:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="Not Found")
