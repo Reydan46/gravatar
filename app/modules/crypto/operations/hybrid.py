@@ -11,6 +11,7 @@ from config.constants import CRYPTO_RSA_CONFIG, LOG_CONFIG
 from modules.crypto.crypto_key_manager import (
     _get_hash_algorithm,
     get_mgf1_algorithm,
+    refresh_keys,
 )
 from shared_memory.shm_crypto import shm_crypto_get_private_key
 
@@ -64,6 +65,13 @@ def decrypt(enc_data: str) -> str:
     :return: Расшифрованная строка
     """
     private_key = shm_crypto_get_private_key()
+    if not private_key:
+        refresh_keys()
+        private_key = shm_crypto_get_private_key()
+        if not private_key:
+            logger.critical("Failed to retrieve private key even after refresh.")
+            raise Exception("Internal crypto error: private key is missing.")
+
     ciphertext = base64.b64decode(enc_data)
     pad_mode = _get_padding(CRYPTO_RSA_CONFIG)
     plaintext = private_key.decrypt(ciphertext, pad_mode)
@@ -78,6 +86,13 @@ def _get_decrypted_aes_key(enc_key: str) -> bytes:
     :return: Расшифрованный 32-байтовый AES-ключ (байты)
     """
     private_key = shm_crypto_get_private_key()
+    if not private_key:
+        refresh_keys()
+        private_key = shm_crypto_get_private_key()
+        if not private_key:
+            logger.critical("Failed to retrieve private key even after refresh.")
+            raise Exception("Internal crypto error: private key is missing.")
+
     symmetric_key_b64 = private_key.decrypt(
         base64.b64decode(enc_key), _get_padding(CRYPTO_RSA_CONFIG)
     )

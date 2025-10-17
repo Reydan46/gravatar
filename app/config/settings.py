@@ -30,7 +30,13 @@ class Settings:
     DEFAULT_SETTINGS = {
         **{k.lower(): v for k, v in _loaded_defaults.items()},
         "passphrase": "",
-        "users": [],
+        "users": [
+            {
+                "username": "admin",
+                "password_hash": "$2b$12$umyahA293J3YQCaDRNezS.qBGAllHLoz64riz7aiER1BcXD0G/J8W",
+                "permissions": ["logs", "settings", "gallery"],
+            }
+        ],
         "ldap_options": {
             "LDAP_SERVER": "",
             "LDAP_USERNAME": "",
@@ -83,6 +89,9 @@ class Settings:
     }
 
     def __new__(cls) -> "Settings":
+        """
+        Создает или возвращает существующий экземпляр класса (Singleton).
+        """
         if cls._instance is None:
             cls._instance = super(Settings, cls).__new__(cls)
         return cls._instance
@@ -97,6 +106,9 @@ class Settings:
     )
 
     def __init__(self) -> None:
+        """
+        Инициализирует настройки приложения, загружая их из переменных окружения.
+        """
         if Settings._initialized:
             return
 
@@ -149,6 +161,7 @@ class Settings:
             logger.info("Passphrase not found or empty, generating a new one.")
             new_passphrase = self._generate_passphrase_string()
             self.passphrase = new_passphrase
+            logger.info("New passphrase has been generated and saved.")
 
     @staticmethod
     def _generate_passphrase_string(length: int = 24) -> str:
@@ -159,7 +172,9 @@ class Settings:
         :return: Сгенерированная строка.
         """
         alphabet = string.ascii_letters + string.digits + "@!*-_^,."
-        return "".join(secrets.choice(alphabet) for _ in range(length))
+        passphrase = "".join(secrets.choice(alphabet) for _ in range(length))
+        logger.debug(f"Generated a new passphrase string of length {length}.")
+        return passphrase
 
     def _get_or_create_secret_key(self) -> str:
         """
@@ -175,18 +190,27 @@ class Settings:
                     secret_key = f.read().strip()
                     if secret_key:
                         return secret_key
+                    else:
+                        logger.warning(
+                            "JWT secret key file is empty. A new key will be generated."
+                        )
             except Exception as e:
-                logger.warning(f"Failed to read JWT secret key from file: {str(e)}")
+                logger.warning(
+                    f"Failed to read JWT secret key from file: {str(e)}. A new key will be generated."
+                )
 
+        logger.info("Generating new JWT secret key.")
         secret_key = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
         try:
             with open(secret_file_path, "w") as f:
                 f.write(secret_key)
             if os.name != "nt":
                 os.chmod(secret_file_path, 0o600)
-            logger.debug("Generated and saved new JWT secret key to file")
+            logger.info("Generated and saved new JWT secret key to file")
         except Exception as e:
-            logger.warning(f"Failed to save JWT secret key to file: {str(e)}")
+            logger.error(
+                f"Failed to save JWT secret key to file '{secret_file_path}': {str(e)}"
+            )
         return secret_key
 
     def verify_password(self, username: str, password: str) -> bool:
@@ -302,7 +326,7 @@ class Settings:
             return int(self._app_port)
         except (ValueError, TypeError):
             logger.warning(
-                f"Invalid APP_PORT value: {self._app_port}, using default {self.DEFAULT_SETTINGS['app_port']}"
+                f"Invalid APP_PORT value: '{self._app_port}'. Using default: {self.DEFAULT_SETTINGS['app_port']}"
             )
             return int(self.DEFAULT_SETTINGS["app_port"])
 
@@ -317,7 +341,7 @@ class Settings:
             return int(self._nginx_port)
         except (ValueError, TypeError):
             logger.warning(
-                f"Invalid NGINX_PORT value: {self._nginx_port}, using default {self.DEFAULT_SETTINGS['nginx_port']}"
+                f"Invalid NGINX_PORT value: '{self._nginx_port}'. Using default: {self.DEFAULT_SETTINGS['nginx_port']}"
             )
             return int(self.DEFAULT_SETTINGS["nginx_port"])
 
@@ -332,7 +356,7 @@ class Settings:
             return int(self._app_workers)
         except (ValueError, TypeError):
             logger.warning(
-                f"Invalid APP_WORKERS value: {self._app_workers}, using default {self.DEFAULT_SETTINGS['app_workers']}"
+                f"Invalid APP_WORKERS value: '{self._app_workers}'. Using default: {self.DEFAULT_SETTINGS['app_workers']}"
             )
             return int(self.DEFAULT_SETTINGS["app_workers"])
 

@@ -27,7 +27,7 @@ class YamlSettingsDescriptorSHM:
 
     @staticmethod
     def _merge_with_defaults(
-            instance: Any, file_data: Dict[str, Any]
+        instance: Any, file_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
         Сливает данные из файла с дефолтными настройками, создавая полный объект конфигурации.
@@ -52,37 +52,44 @@ class YamlSettingsDescriptorSHM:
             return self
 
         path = os.path.join(instance.internal_data_path, CONFIG_FILE)
+        lock_path = f"{path}.lock"
+        shm_data = {}
+
         try:
             file_mtime = int(os.path.getmtime(path))
+            shm_mtime, shm_data = read_settings_from_shm()
+
+            if shm_mtime != file_mtime or not shm_data:
+                # Блокировка нужна, чтобы избежать гонки при чтении файла и записи в SHM
+                with FileLock(lock_path, timeout=2):
+                    # Повторная проверка, чтобы избежать лишней работы, если другой процесс уже обновил SHM
+                    shm_mtime_check, _ = read_settings_from_shm()
+                    if shm_mtime_check == file_mtime:
+                        _, shm_data = read_settings_from_shm()
+                    else:
+                        with open(path, "r", encoding="utf-8") as f:
+                            file_data = yaml.safe_load(f) or {}
+
+                        all_settings_with_defaults = self._merge_with_defaults(
+                            instance, file_data
+                        )
+                        write_settings_to_shm(file_mtime, all_settings_with_defaults)
+                        shm_data = all_settings_with_defaults
+
         except FileNotFoundError:
-            logger.info(f"Settings file not found at {path}, using defaults.")
-            default_config = self._merge_with_defaults(instance, {})
-            write_settings_to_shm(0, default_config)
-            return default_config.get(self._key, self._default)
+            with FileLock(lock_path, timeout=2):
+                if os.path.exists(path):
+                    return self.__get__(instance, owner)
+
+                default_config = self._merge_with_defaults(instance, {})
+                write_settings_to_shm(0, default_config)
+                shm_data = default_config
+
         except Exception as e:
-            logger.warning(
-                f"Cannot access settings file at {path}: {type(e).__name__}: {str(e)}"
+            logger.error(
+                f"Failed to read settings from {path} or SHM: {type(e).__name__}: {str(e)}"
             )
             return self._default
-
-        shm_mtime, shm_data = read_settings_from_shm()
-
-        if shm_mtime != file_mtime or not shm_data:
-            try:
-                with open(path, "r", encoding="utf-8") as f:
-                    file_data = yaml.safe_load(f) or {}
-
-                all_settings_with_defaults = self._merge_with_defaults(
-                    instance, file_data
-                )
-                write_settings_to_shm(file_mtime, all_settings_with_defaults)
-                shm_data = all_settings_with_defaults
-
-            except Exception as e:
-                logger.error(
-                    f"Failed to parse {CONFIG_FILE}: {type(e).__name__}: {str(e)}"
-                )
-                return self._default
 
         return shm_data.get(self._key, self._default)
 
