@@ -33,7 +33,7 @@ ldap_options:
 saml_options:
   enabled: false
   debug: false
-  strict: true
+  strict: false
   sp:
     entityId: "https://gravatar.example.com/saml/metadata"
     assertionConsumerService:

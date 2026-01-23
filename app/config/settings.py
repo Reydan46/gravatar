@@ -46,7 +46,7 @@ class Settings:
         "saml_options": {
             "enabled": False,
             "debug": False,
-            "strict": True,
+            "strict": False,
             "sp": {
                 "entityId": "https://example.com/saml/metadata",
                 "assertionConsumerService": {

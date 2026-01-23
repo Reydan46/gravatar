@@ -109,6 +109,13 @@ class SAMLService:
             )
             raise ValueError(error_msg)
 
+        last_assertion_id = auth.get_last_assertion_id()
+        if not last_assertion_id:
+            logger.error(
+                f"[{client_ip}] SAML Response from IdP '{idp_entity_id}' missing assertion ID. Possible tampering."
+            )
+            raise ValueError("Invalid SAML Response: missing assertion")
+
         username = name_id.strip()
         logger.info(
             f"[{client_ip}][{username}] Successful SAML authentication from IdP '{idp_entity_id}'. NameID: {name_id}, SessionIndex: {session_index}"
