@@ -100,6 +100,8 @@ async def get_avatar(
     except ValueError as e:
         logger.warning(f"Invalid avatar request: {e}")
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=str(e))
+    except HTTPException:
+        raise
     except Exception as e:
         log_request_error(request, e)
         raise HTTPException(
